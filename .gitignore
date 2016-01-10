@@ -1,0 +1,13 @@
+*\.properties*
+config.yml
+
+target/
+.idea/
+logs/
+
+*.class
+*.jar
+*.iml
+*.so
+
+notes.txt
