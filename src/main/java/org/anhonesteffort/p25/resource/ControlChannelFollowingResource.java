@@ -21,12 +21,14 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import org.anhonesteffort.chnlzr.CapnpUtil;
+import org.anhonesteffort.kinesis.KinesisRecordSender;
 import org.anhonesteffort.p25.P25Channel;
 import org.anhonesteffort.p25.P25ChannelSpec;
 import org.anhonesteffort.p25.P25Config;
 import org.anhonesteffort.p25.P25DcodrConfig;
 import org.anhonesteffort.p25.chnlbrkr.ChnlBrkrController;
 import org.anhonesteffort.p25.chnlbrkr.SamplesSourceHandler;
+import org.anhonesteffort.p25.kinesis.KinesisRecordSenderFactory;
 import org.anhonesteffort.p25.model.ChannelId;
 import org.anhonesteffort.p25.model.FollowList;
 import org.anhonesteffort.p25.model.FollowRequest;
@@ -67,21 +69,24 @@ public class ControlChannelFollowingResource {
   private final Queue<ChannelId> pendingRequests = new ConcurrentLinkedQueue<>();
   private final Object           txnLock         = new Object();
 
-  private final P25DcodrConfig           config;
-  private final ChnlBrkrController       chnlBrkr;
-  private final ChannelMonitor           channelMonitor;
-  private final WebTarget                trafficTarget;
-  private final ListeningExecutorService dspPool;
+  private final P25DcodrConfig             config;
+  private final ChnlBrkrController         chnlBrkr;
+  private final ChannelMonitor             channelMonitor;
+  private final KinesisRecordSenderFactory senderFactory;
+  private final WebTarget                  trafficTarget;
+  private final ListeningExecutorService   dspPool;
 
-  public ControlChannelFollowingResource(P25DcodrConfig           config,
-                                         ChnlBrkrController       chnlBrkr,
-                                         ChannelMonitor           channelMonitor,
-                                         WebTarget                trafficTarget,
-                                         ListeningExecutorService dspPool)
+  public ControlChannelFollowingResource(P25DcodrConfig             config,
+                                         ChnlBrkrController         chnlBrkr,
+                                         ChannelMonitor             channelMonitor,
+                                         KinesisRecordSenderFactory senderFactory,
+                                         WebTarget                  trafficTarget,
+                                         ListeningExecutorService   dspPool)
   {
     this.config         = config;
     this.chnlBrkr       = chnlBrkr;
     this.channelMonitor = channelMonitor;
+    this.senderFactory  = senderFactory;
     this.trafficTarget  = trafficTarget;
     this.dspPool        = dspPool;
   }
@@ -152,7 +157,8 @@ public class ControlChannelFollowingResource {
     public void onSuccess(SamplesSourceHandler samplesSource) {
       P25ChannelSpec         channelSpec   = new P25ChannelSpec(request.getFrequency());
       P25Channel             channel       = new P25Channel(config.getP25Config(), channelSpec);
-      ControlChannelFollower follower      = new ControlChannelFollower(request, trafficTarget);
+      KinesisRecordSender    sender        = senderFactory.create(request.getChannelId());
+      ControlChannelFollower follower      = new ControlChannelFollower(request, trafficTarget, sender);
       ListenableFuture<Void> channelFuture = dspPool.submit(channel);
 
       if (!channelMonitor.monitor(request, channelFuture, follower)) {

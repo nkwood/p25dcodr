@@ -21,12 +21,14 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import org.anhonesteffort.chnlzr.CapnpUtil;
+import org.anhonesteffort.kinesis.KinesisRecordSender;
 import org.anhonesteffort.p25.P25Channel;
 import org.anhonesteffort.p25.P25ChannelSpec;
 import org.anhonesteffort.p25.P25Config;
 import org.anhonesteffort.p25.P25DcodrConfig;
 import org.anhonesteffort.p25.chnlbrkr.ChnlBrkrController;
 import org.anhonesteffort.p25.chnlbrkr.SamplesSourceHandler;
+import org.anhonesteffort.p25.kinesis.KinesisRecordSenderFactory;
 import org.anhonesteffort.p25.model.ChannelId;
 import org.anhonesteffort.p25.model.GroupCaptureRequest;
 import org.anhonesteffort.p25.monitor.ChannelMonitor;
@@ -59,19 +61,22 @@ public class TrafficChannelCaptureResource {
   private final Queue<ChannelId> pendingRequests = new ConcurrentLinkedQueue<>();
   private final Object           txnLock         = new Object();
 
-  private final P25DcodrConfig           config;
-  private final ChnlBrkrController       chnlBrkr;
-  private final ChannelMonitor           channelMonitor;
-  private final ListeningExecutorService dspPool;
+  private final P25DcodrConfig             config;
+  private final ChnlBrkrController         chnlBrkr;
+  private final ChannelMonitor             channelMonitor;
+  private final KinesisRecordSenderFactory senderFactory;
+  private final ListeningExecutorService   dspPool;
 
-  public TrafficChannelCaptureResource(P25DcodrConfig           config,
-                                       ChnlBrkrController       chnlBrkr,
-                                       ChannelMonitor           channelMonitor,
-                                       ListeningExecutorService dspPool)
+  public TrafficChannelCaptureResource(P25DcodrConfig             config,
+                                       ChnlBrkrController         chnlBrkr,
+                                       ChannelMonitor             channelMonitor,
+                                       KinesisRecordSenderFactory senderFactory,
+                                       ListeningExecutorService   dspPool)
   {
     this.config         = config;
     this.chnlBrkr       = chnlBrkr;
     this.channelMonitor = channelMonitor;
+    this.senderFactory  = senderFactory;
     this.dspPool        = dspPool;
   }
 
@@ -125,7 +130,8 @@ public class TrafficChannelCaptureResource {
     public void onSuccess(SamplesSourceHandler samplesSource) {
       P25ChannelSpec             channelSpec   = new P25ChannelSpec(request.getFrequency());
       P25Channel                 channel       = new P25Channel(config.getP25Config(), channelSpec);
-      GroupTrafficChannelCapture capture       = new GroupTrafficChannelCapture();
+      KinesisRecordSender        sender        = senderFactory.create(request.getChannelId());
+      GroupTrafficChannelCapture capture       = new GroupTrafficChannelCapture(sender, request.getChannelId());
       ListenableFuture<Void>     channelFuture = dspPool.submit(channel);
 
       if (!channelMonitor.monitor(request, channelFuture, capture)) {

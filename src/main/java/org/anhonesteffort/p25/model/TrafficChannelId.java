@@ -27,8 +27,10 @@ public abstract class TrafficChannelId extends ChannelId {
 
   protected TrafficChannelId() { }
 
-  public TrafficChannelId(Integer wacn, Integer systemId, Integer rfSubsystemId, Integer sourceId) {
-    super(wacn, systemId, rfSubsystemId);
+  protected TrafficChannelId(
+      Integer type, Integer wacn, Integer systemId, Integer rfSubsystemId, Integer sourceId
+  ) {
+    super(type, wacn, systemId, rfSubsystemId);
     this.sourceId = sourceId;
   }
 

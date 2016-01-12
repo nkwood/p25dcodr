@@ -17,28 +17,14 @@
 
 package org.anhonesteffort.p25.protocol;
 
-import org.anhonesteffort.dsp.Sink;
-import org.anhonesteffort.p25.monitor.DataUnitCounter;
-import org.anhonesteffort.p25.protocol.frame.DataUnit;
+import org.anhonesteffort.kinesis.KinesisRecordSender;
+import org.anhonesteffort.p25.kinesis.KinesisDataUnitSink;
+import org.anhonesteffort.p25.model.ChannelId;
 
-public class GroupTrafficChannelCapture implements Sink<DataUnit>, DataUnitCounter {
+public class GroupTrafficChannelCapture extends KinesisDataUnitSink {
 
-  private Integer dataUnitCount = 0;
-
-  @Override
-  public void consume(DataUnit element) {
-    if (element.isIntact())
-      dataUnitCount++;
-  }
-
-  @Override
-  public Integer getDataUnitCount() {
-    return dataUnitCount;
-  }
-
-  @Override
-  public void resetDataUnitCount() {
-    dataUnitCount = 0;
+  public GroupTrafficChannelCapture(KinesisRecordSender sender, ChannelId channelId) {
+    super(sender, channelId);
   }
 
 }

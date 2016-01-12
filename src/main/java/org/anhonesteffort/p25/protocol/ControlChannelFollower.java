@@ -17,9 +17,9 @@
 
 package org.anhonesteffort.p25.protocol;
 
-import org.anhonesteffort.dsp.Sink;
+import org.anhonesteffort.kinesis.KinesisRecordSender;
+import org.anhonesteffort.p25.kinesis.KinesisDataUnitSink;
 import org.anhonesteffort.p25.model.GroupChannelId;
-import org.anhonesteffort.p25.monitor.DataUnitCounter;
 import org.anhonesteffort.p25.model.FollowRequest;
 import org.anhonesteffort.p25.model.GroupCaptureRequest;
 import org.anhonesteffort.p25.protocol.frame.DataUnit;
@@ -38,7 +38,7 @@ import javax.ws.rs.core.Response;
 import java.util.Optional;
 import java.util.concurrent.Future;
 
-public class ControlChannelFollower implements Sink<DataUnit>, DataUnitCounter {
+public class ControlChannelFollower extends KinesisDataUnitSink {
 
   private static final Logger log = LoggerFactory.getLogger(ControlChannelFollower.class);
 
@@ -46,14 +46,16 @@ public class ControlChannelFollower implements Sink<DataUnit>, DataUnitCounter {
   private final FollowRequest followRequest;
   private final WebTarget trafficTarget;
 
-  private Integer dataUnitCount = 0;
-
-  public ControlChannelFollower(FollowRequest followRequest, WebTarget trafficTarget) {
+  public ControlChannelFollower(FollowRequest       followRequest,
+                                WebTarget           trafficTarget,
+                                KinesisRecordSender sender)
+  {
+    super(sender, followRequest.getChannelId());
     this.followRequest = followRequest;
     this.trafficTarget = trafficTarget;
   }
 
-  private Future<Response> sendRequest(Object request) {
+  private Future<Response> sendRequest(GroupCaptureRequest request) {
     return trafficTarget.request().async().post(
         Entity.entity(request, MediaType.APPLICATION_JSON_TYPE)
     );
@@ -90,10 +92,10 @@ public class ControlChannelFollower implements Sink<DataUnit>, DataUnitCounter {
 
   @Override
   public void consume(DataUnit dataUnit) {
+    super.consume(dataUnit);
     if (!dataUnit.isIntact())
       return;
 
-    dataUnitCount++;
     switch (dataUnit.getNid().getDuid().getId()) {
       case Duid.ID_TRUNK_SIGNALING:
         ((TrunkSignalDataUnit) dataUnit).getBlocks().forEach(block -> {
@@ -107,16 +109,6 @@ public class ControlChannelFollower implements Sink<DataUnit>, DataUnitCounter {
         });
         break;
     }
-  }
-
-  @Override
-  public Integer getDataUnitCount() {
-    return dataUnitCount;
-  }
-
-  @Override
-  public void resetDataUnitCount() {
-    dataUnitCount = 0;
   }
 
 }

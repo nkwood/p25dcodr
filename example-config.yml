@@ -14,6 +14,20 @@ server:
     type: http
     port: 7070
 
+kinesis:
+  region: us-west-2
+  streamName: idk-stream
+  accessKeyId: aaabbb111222
+  secretKey: cccddd333444
+  appName: p25dcodr
+  appVersion: v0.1
+  messageSizeMax: 2048
+  payloadsPerRecordMax: 1
+  senderPoolSize: 6
+  senderQueueSize: 32
+  controlDelayMaxMs: 30000
+  trafficDelayMaxMs: 10000
+
 logging:
   level: INFO
   appenders:

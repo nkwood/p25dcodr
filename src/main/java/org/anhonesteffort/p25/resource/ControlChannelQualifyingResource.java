@@ -178,7 +178,7 @@ public class ControlChannelQualifyingResource {
         if (throwable instanceof CancellationException) {
           onQualifyComplete();
         } else {
-          log.error("unable to qualify channel, unexpected dsp error.", throwable);
+          log.error("unable to qualify channel, unexpected dsp error", throwable);
           response.resume(Response.status(500).build());
         }
       }
@@ -190,14 +190,14 @@ public class ControlChannelQualifyingResource {
         channelFuture.cancel(true);
 
         if (sourceClosedFuture.isSuccess()) {
-          log.warn("unable to qualify channel, chnlbrkr connection closed unexpectedly.");
+          log.warn("unable to qualify channel, chnlbrkr connection closed unexpectedly");
           response.resume(Response.status(503).build());
         } else if (sourceClosedFuture.cause() instanceof ProtocolErrorException) {
           ProtocolErrorException error = (ProtocolErrorException) sourceClosedFuture.cause();
           log.warn("unable to qualify channel, chnlbrkr closed connection with error: " + error.getCode());
           response.resume(Response.status(503).build());
         } else {
-          log.error("unable to qualify channel, unexpected netty error.", sourceClosedFuture.cause());
+          log.error("unable to qualify channel, unexpected netty error", sourceClosedFuture.cause());
           response.resume(Response.status(500).build());
         }
       }

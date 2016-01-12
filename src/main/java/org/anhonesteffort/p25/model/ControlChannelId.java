@@ -28,14 +28,8 @@ public class ControlChannelId extends ChannelId {
   public ControlChannelId() { }
 
   public ControlChannelId(Integer wacn, Integer systemId, Integer rfSubsystemId, Integer siteId) {
-    super(wacn, systemId, rfSubsystemId);
+    super(TYPE_CONTROL, wacn, systemId, rfSubsystemId);
     this.siteId = siteId;
-  }
-
-  @Override
-  @JsonProperty
-  protected Integer getType() {
-    return TYPE_CONTROL;
   }
 
   @JsonProperty

@@ -28,14 +28,8 @@ public class QualifyChannelId extends ChannelId {
   public QualifyChannelId() { }
 
   public QualifyChannelId(Double frequency) {
-    super(-1, -1, -1);
+    super(TYPE_QUALIFY, -1, -1, -1);
     this.frequency = frequency;
-  }
-
-  @Override
-  @JsonProperty
-  protected Integer getType() {
-    return TYPE_QUALIFY;
   }
 
   @JsonProperty

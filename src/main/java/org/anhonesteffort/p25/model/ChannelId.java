@@ -23,24 +23,29 @@ import javax.validation.constraints.NotNull;
 
 public abstract class ChannelId {
 
-  public static final Integer TYPE_CONTROL        = 1;
-  public static final Integer TYPE_TRAFFIC_GROUP  = 2;
-  public static final Integer TYPE_TRAFFIC_DIRECT = 3;
-  public static final Integer TYPE_QUALIFY        = 4;
+  public static final int TYPE_CONTROL        = 1;
+  public static final int TYPE_TRAFFIC_GROUP  = 2;
+  public static final int TYPE_TRAFFIC_DIRECT = 3;
+  public static final int TYPE_QUALIFY        = 4;
 
+  @NotNull private Integer type;
   @NotNull private Integer wacn;
   @NotNull private Integer systemId;
   @NotNull private Integer rfSubsystemId;
 
   protected ChannelId() { }
 
-  protected ChannelId(Integer wacn, Integer systemId, Integer rfSubsystemId) {
+  protected ChannelId(Integer type, Integer wacn, Integer systemId, Integer rfSubsystemId) {
+    this.type          = type;
     this.wacn          = wacn;
     this.systemId      = systemId;
     this.rfSubsystemId = rfSubsystemId;
   }
 
-  protected abstract Integer getType();
+  @JsonProperty
+  public Integer getType() {
+    return type;
+  }
 
   @JsonProperty
   public Integer getWacn() {
@@ -59,7 +64,7 @@ public abstract class ChannelId {
 
   @Override
   public String toString() {
-    return wacn + ":" + systemId + ":" + rfSubsystemId;
+    return type + ":" + wacn + ":" + systemId + ":" + rfSubsystemId;
   }
 
   @Override
@@ -69,15 +74,15 @@ public abstract class ChannelId {
 
     ChannelId other = (ChannelId) o;
 
-    return getType().equals(other.getType()) &&
-           wacn.equals(other.wacn)           &&
-           systemId.equals(other.systemId)   &&
+    return type.equals(other.type)         &&
+           wacn.equals(other.wacn)         &&
+           systemId.equals(other.systemId) &&
            rfSubsystemId.equals(other.rfSubsystemId);
   }
 
   @Override
   public int hashCode() {
-    int result = getType().hashCode();
+    int result = type.hashCode();
         result = 31 * result + wacn.hashCode();
         result = 31 * result + systemId.hashCode();
         result = 31 * result + rfSubsystemId.hashCode();

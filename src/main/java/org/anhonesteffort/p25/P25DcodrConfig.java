@@ -20,6 +20,7 @@ package org.anhonesteffort.p25;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
 import io.dropwizard.client.JerseyClientConfiguration;
+import org.anhonesteffort.p25.kinesis.KinesisConfig;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
@@ -32,8 +33,11 @@ public class P25DcodrConfig extends Configuration {
 
   @Valid
   @NotNull
-  @JsonProperty
   private JerseyClientConfiguration httpClient = new JerseyClientConfiguration();
+
+  @Valid
+  @NotNull
+  private KinesisConfig kinesis;
 
   @Min(1)   private Integer dspPoolSize;
   @NotEmpty private String  brkrHostname;
@@ -50,6 +54,11 @@ public class P25DcodrConfig extends Configuration {
 
   public JerseyClientConfiguration getJerseyConfig() {
     return httpClient;
+  }
+
+  @JsonProperty
+  public KinesisConfig getKinesis() {
+    return kinesis;
   }
 
   @JsonProperty

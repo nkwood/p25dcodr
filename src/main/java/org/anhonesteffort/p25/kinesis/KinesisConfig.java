@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 An Honest Effort LLC, coping.
+ * Copyright (C) 2016 An Honest Effort LLC.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,48 +17,96 @@
 
 package org.anhonesteffort.p25.kinesis;
 
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.RegionUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
 
-public class KinesisConfig {
+import javax.validation.constraints.Min;
 
-  @NotEmpty private String region;
-  @NotEmpty private String stream;
-  @NotEmpty private String accessKeyId;
-  @NotEmpty private String secretKey;
-  @NotEmpty private String appName;
-  @NotEmpty private String appVersion;
+public class KinesisConfig implements org.anhonesteffort.kinesis.KinesisConfig {
+
+  @NotEmpty  private String  region;
+  @NotEmpty  private String  streamName;
+  @NotEmpty  private String  accessKeyId;
+  @NotEmpty  private String  secretKey;
+  @NotEmpty  private String  appName;
+  @NotEmpty  private String  appVersion;
+  @Min(2048) private Integer messageSizeMax;
+  @Min(1)    private Integer payloadsPerRecordMax;
+  @Min(1)    private Integer senderPoolSize;
+  @Min(1)    private Integer senderQueueSize;
+  @Min(1000) private Long    controlDelayMaxMs;
+  @Min(1000) private Long    trafficDelayMaxMs;
 
   public KinesisConfig() { }
 
+  @Override
   @JsonProperty
-  public String getRegion() {
-    return region;
+  public Region getRegion() {
+    return RegionUtils.getRegion(region);
   }
 
+  @Override
   @JsonProperty
-  public String getStream() {
-    return stream;
+  public String getStreamName() {
+    return streamName;
   }
 
+  @Override
   @JsonProperty
   public String getAccessKeyId() {
     return accessKeyId;
   }
 
+  @Override
   @JsonProperty
   public String getSecretKey() {
     return secretKey;
   }
 
+  @Override
   @JsonProperty
   public String getAppName() {
     return appName;
   }
 
+  @Override
   @JsonProperty
   public String getAppVersion() {
     return appVersion;
+  }
+
+  @Override
+  @JsonProperty
+  public Integer getMessageSizeMax() {
+    return messageSizeMax;
+  }
+
+  @Override
+  @JsonProperty
+  public Integer getPayloadsPerRecordMax() {
+    return payloadsPerRecordMax;
+  }
+
+  @JsonProperty
+  public Integer getSenderPoolSize() {
+    return senderPoolSize;
+  }
+
+  @JsonProperty
+  public Integer getSenderQueueSize() {
+    return senderQueueSize;
+  }
+
+  @JsonProperty
+  public Long getControlDelayMaxMs() {
+    return controlDelayMaxMs;
+  }
+
+  @JsonProperty
+  public Long getTrafficDelayMaxMs() {
+    return trafficDelayMaxMs;
   }
 
 }

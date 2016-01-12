@@ -30,9 +30,11 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.anhonesteffort.chnlzr.CapnpUtil;
 import org.anhonesteffort.chnlzr.ChnlzrConfig;
+import org.anhonesteffort.kinesis.KinesisClientFactory;
 import org.anhonesteffort.p25.chnlbrkr.ChnlBrkrConnectionFactory;
 import org.anhonesteffort.p25.chnlbrkr.ChnlBrkrController;
 import org.anhonesteffort.p25.health.DumbCheck;
+import org.anhonesteffort.p25.kinesis.KinesisRecordSenderFactory;
 import org.anhonesteffort.p25.monitor.ChannelMonitor;
 import org.anhonesteffort.p25.monitor.RetryingControlChannelMonitor;
 import org.anhonesteffort.p25.resource.ControlChannelFollowingResource;
@@ -42,6 +44,7 @@ import org.anhonesteffort.p25.resource.TrafficChannelCaptureResource;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.anhonesteffort.chnlzr.Proto.HostId;
@@ -80,24 +83,28 @@ public class P25DcodrApplication extends Application<P25DcodrConfig> {
 
   @Override
   public void run(P25DcodrConfig config, Environment environment) throws Exception {
-    EventLoopGroup           nettyPool = new NioEventLoopGroup();
-    ListeningExecutorService dspPool   = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(config.getDspPoolSize()));
+    EventLoopGroup           nettyPool   = new NioEventLoopGroup();
+    ListeningExecutorService dspPool     = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(config.getDspPoolSize()));
+    ExecutorService          kinesisPool = Executors.newFixedThreadPool(config.getKinesis().getSenderPoolSize());
 
-    Client    client        = buildClient(config, environment);
+    Client    jerseyClient  = buildClient(config, environment);
     String    serverUri     = getServerUri(config);
-    WebTarget qualifyTarget = client.target(serverUri).path("qualify");
-    WebTarget followTarget  = client.target(serverUri).path("channels/control");
-    WebTarget trafficTarget = client.target(serverUri).path("channels/traffic/group");
+    WebTarget qualifyTarget = jerseyClient.target(serverUri).path("qualify");
+    WebTarget followTarget  = jerseyClient.target(serverUri).path("channels/control");
+    WebTarget trafficTarget = jerseyClient.target(serverUri).path("channels/traffic/group");
 
-    ChnlBrkrConnectionFactory connectionFactory = new ChnlBrkrConnectionFactory(chnlzrConfig, NioSocketChannel.class, nettyPool);
-    HostId.Reader             brkrHost          = CapnpUtil.hostId(config.getBrkrHostname(), config.getBrkrPort());
-    ChnlBrkrController        chnlBrkr          = new ChnlBrkrController(brkrHost, connectionFactory);
-    ChannelMonitor            channelMonitor    = new RetryingControlChannelMonitor(config, qualifyTarget, followTarget);
+    ChnlBrkrConnectionFactory brkrConnections = new ChnlBrkrConnectionFactory(chnlzrConfig, NioSocketChannel.class, nettyPool);
+    HostId.Reader             brkrHost        = CapnpUtil.hostId(config.getBrkrHostname(), config.getBrkrPort());
+    ChnlBrkrController        chnlBrkr        = new ChnlBrkrController(brkrHost, brkrConnections);
+    ChannelMonitor            channelMonitor  = new RetryingControlChannelMonitor(config, qualifyTarget, followTarget);
+
+    KinesisClientFactory       kinesisClients = new KinesisClientFactory(config.getKinesis(), kinesisPool);
+    KinesisRecordSenderFactory kinesisSenders = new KinesisRecordSenderFactory(config.getKinesis(), kinesisClients);
 
     environment.healthChecks().register("dumb", new DumbCheck());
     environment.jersey().register(new ControlChannelQualifyingResource(config, chnlBrkr, dspPool));
-    environment.jersey().register(new ControlChannelFollowingResource(config, chnlBrkr, channelMonitor, trafficTarget, dspPool));
-    environment.jersey().register(new TrafficChannelCaptureResource(config, chnlBrkr, channelMonitor, dspPool));
+    environment.jersey().register(new ControlChannelFollowingResource(config, chnlBrkr, channelMonitor, kinesisSenders, trafficTarget, dspPool));
+    environment.jersey().register(new TrafficChannelCaptureResource(config, chnlBrkr, channelMonitor, kinesisSenders, dspPool));
   }
 
   public static void main(String[] args) throws Exception {
