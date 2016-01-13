@@ -30,7 +30,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.anhonesteffort.chnlzr.CapnpUtil;
 import org.anhonesteffort.chnlzr.ChnlzrConfig;
-import org.anhonesteffort.kinesis.KinesisClientFactory;
+import org.anhonesteffort.kinesis.producer.KinesisClientFactory;
 import org.anhonesteffort.p25.chnlbrkr.ChnlBrkrConnectionFactory;
 import org.anhonesteffort.p25.chnlbrkr.ChnlBrkrController;
 import org.anhonesteffort.p25.health.DumbCheck;

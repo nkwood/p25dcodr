@@ -18,8 +18,8 @@
 package org.anhonesteffort.p25.kinesis;
 
 import org.anhonesteffort.dsp.Sink;
-import org.anhonesteffort.kinesis.KinesisRecordSender;
 import org.anhonesteffort.kinesis.pack.MessagePackingException;
+import org.anhonesteffort.kinesis.producer.KinesisRecordProducer;
 import org.anhonesteffort.kinesis.proto.ProtoP25;
 import org.anhonesteffort.kinesis.proto.ProtoP25Factory;
 import org.anhonesteffort.p25.model.ChannelId;
@@ -41,14 +41,14 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter {
   private static final Logger log = LoggerFactory.getLogger(KinesisDataUnitSink.class);
   private final ProtoP25Factory protocol = new ProtoP25Factory();
 
-  private final KinesisRecordSender                        sender;
+  private final KinesisRecordProducer                      sender;
   private final Optional<ProtoP25.ControlChannelId.Reader> controlId;
   private final Optional<ProtoP25.DirectChannelId.Reader>  directId;
   private final Optional<ProtoP25.GroupChannelId.Reader>   groupId;
 
   private Integer dataUnitCount = 0;
 
-  public KinesisDataUnitSink(KinesisRecordSender sender, ChannelId channelId) {
+  public KinesisDataUnitSink(KinesisRecordProducer sender, ChannelId channelId) {
     this.sender = sender;
 
     switch (channelId.getType()) {

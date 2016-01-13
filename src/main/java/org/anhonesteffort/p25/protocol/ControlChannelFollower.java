@@ -17,7 +17,7 @@
 
 package org.anhonesteffort.p25.protocol;
 
-import org.anhonesteffort.kinesis.KinesisRecordSender;
+import org.anhonesteffort.kinesis.producer.KinesisRecordProducer;
 import org.anhonesteffort.p25.kinesis.KinesisDataUnitSink;
 import org.anhonesteffort.p25.model.GroupChannelId;
 import org.anhonesteffort.p25.model.FollowRequest;
@@ -46,9 +46,9 @@ public class ControlChannelFollower extends KinesisDataUnitSink {
   private final FollowRequest followRequest;
   private final WebTarget trafficTarget;
 
-  public ControlChannelFollower(FollowRequest       followRequest,
-                                WebTarget           trafficTarget,
-                                KinesisRecordSender sender)
+  public ControlChannelFollower(FollowRequest         followRequest,
+                                WebTarget             trafficTarget,
+                                KinesisRecordProducer sender)
   {
     super(sender, followRequest.getChannelId());
     this.followRequest = followRequest;

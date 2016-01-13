@@ -20,11 +20,12 @@ package org.anhonesteffort.p25.kinesis;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.RegionUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.anhonesteffort.kinesis.producer.KinesisProducerConfig;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Min;
 
-public class KinesisConfig implements org.anhonesteffort.kinesis.KinesisConfig {
+public class KinesisConfig implements KinesisProducerConfig {
 
   @NotEmpty  private String  region;
   @NotEmpty  private String  streamName;

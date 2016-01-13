@@ -21,7 +21,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import org.anhonesteffort.chnlzr.CapnpUtil;
-import org.anhonesteffort.kinesis.KinesisRecordSender;
+import org.anhonesteffort.kinesis.producer.KinesisRecordProducer;
 import org.anhonesteffort.p25.P25Channel;
 import org.anhonesteffort.p25.P25ChannelSpec;
 import org.anhonesteffort.p25.P25Config;
@@ -157,7 +157,7 @@ public class ControlChannelFollowingResource {
     public void onSuccess(SamplesSourceHandler samplesSource) {
       P25ChannelSpec         channelSpec   = new P25ChannelSpec(request.getFrequency());
       P25Channel             channel       = new P25Channel(config.getP25Config(), channelSpec);
-      KinesisRecordSender    sender        = senderFactory.create(request.getChannelId());
+      KinesisRecordProducer  sender        = senderFactory.create(request.getChannelId());
       ControlChannelFollower follower      = new ControlChannelFollower(request, trafficTarget, sender);
       ListenableFuture<Void> channelFuture = dspPool.submit(channel);
 

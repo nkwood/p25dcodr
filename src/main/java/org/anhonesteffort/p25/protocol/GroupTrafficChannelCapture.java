@@ -17,13 +17,13 @@
 
 package org.anhonesteffort.p25.protocol;
 
-import org.anhonesteffort.kinesis.KinesisRecordSender;
+import org.anhonesteffort.kinesis.producer.KinesisRecordProducer;
 import org.anhonesteffort.p25.kinesis.KinesisDataUnitSink;
 import org.anhonesteffort.p25.model.ChannelId;
 
 public class GroupTrafficChannelCapture extends KinesisDataUnitSink {
 
-  public GroupTrafficChannelCapture(KinesisRecordSender sender, ChannelId channelId) {
+  public GroupTrafficChannelCapture(KinesisRecordProducer sender, ChannelId channelId) {
     super(sender, channelId);
   }
 

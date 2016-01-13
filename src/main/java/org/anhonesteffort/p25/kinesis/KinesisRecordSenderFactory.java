@@ -17,8 +17,8 @@
 
 package org.anhonesteffort.p25.kinesis;
 
-import org.anhonesteffort.kinesis.KinesisClientFactory;
-import org.anhonesteffort.kinesis.KinesisRecordSender;
+import org.anhonesteffort.kinesis.producer.KinesisClientFactory;
+import org.anhonesteffort.kinesis.producer.KinesisRecordProducer;
 import org.anhonesteffort.p25.model.ChannelId;
 import org.anhonesteffort.p25.model.ControlChannelId;
 import org.anhonesteffort.p25.model.DirectChannelId;
@@ -34,23 +34,23 @@ public class KinesisRecordSenderFactory {
     this.clients = clients;
   }
 
-  public KinesisRecordSender create(ChannelId channelId) {
+  public KinesisRecordProducer create(ChannelId channelId) {
     switch (channelId.getType()) {
       case CONTROL:
         ControlChannelId control = (ControlChannelId) channelId;
-        return new KinesisRecordSender(
+        return new KinesisRecordProducer(
             config, clients.create(), control.toString(), config.getControlDelayMaxMs(), config.getSenderQueueSize()
         );
 
       case TRAFFIC_DIRECT:
         DirectChannelId direct = (DirectChannelId) channelId;
-        return new KinesisRecordSender(
+        return new KinesisRecordProducer(
             config, clients.create(), direct.toString(), config.getTrafficDelayMaxMs(), config.getSenderQueueSize()
         );
 
       case TRAFFIC_GROUP:
         GroupChannelId group = (GroupChannelId) channelId;
-        return new KinesisRecordSender(
+        return new KinesisRecordProducer(
             config, clients.create(), group.toString(), config.getTrafficDelayMaxMs(), config.getSenderQueueSize()
         );
     }
