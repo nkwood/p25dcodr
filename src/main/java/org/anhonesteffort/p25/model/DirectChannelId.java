@@ -30,8 +30,13 @@ public class DirectChannelId extends TrafficChannelId {
   public DirectChannelId(
       Integer wacn, Integer systemId, Integer rfSubsystemId, Integer sourceId, Integer destinationId
   ) {
-    super(TYPE_TRAFFIC_DIRECT, wacn, systemId, rfSubsystemId, sourceId);
+    super(wacn, systemId, rfSubsystemId, sourceId);
     this.destinationId = destinationId;
+  }
+
+  @Override
+  public Type getType() {
+    return Type.TRAFFIC_DIRECT;
   }
 
   @JsonProperty

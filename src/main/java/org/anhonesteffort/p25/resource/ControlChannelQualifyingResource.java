@@ -123,8 +123,8 @@ public class ControlChannelQualifyingResource {
       channel.addSink(qualifier);
       samplesSource.setSink(channel);
 
-      samplesSource.getCloseFuture().addListener(channelCallback);
       Futures.addCallback(channelFuture, channelCallback);
+      samplesSource.getCloseFuture().addListener(channelCallback);
 
       response.setTimeout(config.getChannelQualifyTimeMs(), TimeUnit.MILLISECONDS);
       response.setTimeoutHandler(asyncResponse -> channelFuture.cancel(true));

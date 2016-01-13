@@ -30,8 +30,13 @@ public class GroupChannelId extends TrafficChannelId {
   public GroupChannelId(
       Integer wacn, Integer systemId, Integer rfSubsystemId, Integer sourceId, Integer groupId
   ) {
-    super(TYPE_TRAFFIC_GROUP, wacn, systemId, rfSubsystemId, sourceId);
+    super(wacn, systemId, rfSubsystemId, sourceId);
     this.groupId = groupId;
+  }
+
+  @Override
+  public Type getType() {
+    return Type.TRAFFIC_GROUP;
   }
 
   @JsonProperty

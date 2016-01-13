@@ -36,19 +36,19 @@ public class KinesisRecordSenderFactory {
 
   public KinesisRecordSender create(ChannelId channelId) {
     switch (channelId.getType()) {
-      case ChannelId.TYPE_CONTROL:
+      case CONTROL:
         ControlChannelId control = (ControlChannelId) channelId;
         return new KinesisRecordSender(
             config, clients.create(), control.toString(), config.getControlDelayMaxMs(), config.getSenderQueueSize()
         );
 
-      case ChannelId.TYPE_TRAFFIC_DIRECT:
+      case TRAFFIC_DIRECT:
         DirectChannelId direct = (DirectChannelId) channelId;
         return new KinesisRecordSender(
             config, clients.create(), direct.toString(), config.getTrafficDelayMaxMs(), config.getSenderQueueSize()
         );
 
-      case ChannelId.TYPE_TRAFFIC_GROUP:
+      case TRAFFIC_GROUP:
         GroupChannelId group = (GroupChannelId) channelId;
         return new KinesisRecordSender(
             config, clients.create(), group.toString(), config.getTrafficDelayMaxMs(), config.getSenderQueueSize()

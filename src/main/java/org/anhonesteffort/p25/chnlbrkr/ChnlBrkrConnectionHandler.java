@@ -39,9 +39,7 @@ public class ChnlBrkrConnectionHandler extends ChannelHandlerAdapter {
   @Override
   public void channelActive(ChannelHandlerContext context) {
     this.context = context;
-    if (!future.set(this)) {
-      context.close();
-    }
+    future.set(this);
   }
 
   @Override

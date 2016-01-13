@@ -17,35 +17,31 @@
 
 package org.anhonesteffort.p25.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotNull;
 
 public abstract class ChannelId {
 
-  public static final int TYPE_CONTROL        = 1;
-  public static final int TYPE_TRAFFIC_GROUP  = 2;
-  public static final int TYPE_TRAFFIC_DIRECT = 3;
-  public static final int TYPE_QUALIFY        = 4;
-
-  @NotNull private Integer type;
   @NotNull private Integer wacn;
   @NotNull private Integer systemId;
   @NotNull private Integer rfSubsystemId;
 
+  public enum Type {
+    CONTROL, TRAFFIC_DIRECT, TRAFFIC_GROUP, QUALIFY
+  }
+
   protected ChannelId() { }
 
-  protected ChannelId(Integer type, Integer wacn, Integer systemId, Integer rfSubsystemId) {
-    this.type          = type;
+  protected ChannelId(Integer wacn, Integer systemId, Integer rfSubsystemId) {
     this.wacn          = wacn;
     this.systemId      = systemId;
     this.rfSubsystemId = rfSubsystemId;
   }
 
-  @JsonProperty
-  public Integer getType() {
-    return type;
-  }
+  @JsonIgnore
+  public abstract Type getType();
 
   @JsonProperty
   public Integer getWacn() {
@@ -64,7 +60,7 @@ public abstract class ChannelId {
 
   @Override
   public String toString() {
-    return type + ":" + wacn + ":" + systemId + ":" + rfSubsystemId;
+    return getType().name() + ":" + wacn + ":" + systemId + ":" + rfSubsystemId;
   }
 
   @Override
@@ -74,15 +70,15 @@ public abstract class ChannelId {
 
     ChannelId other = (ChannelId) o;
 
-    return type.equals(other.type)         &&
-           wacn.equals(other.wacn)         &&
-           systemId.equals(other.systemId) &&
+    return getType().equals(other.getType()) &&
+           wacn.equals(other.wacn)           &&
+           systemId.equals(other.systemId)   &&
            rfSubsystemId.equals(other.rfSubsystemId);
   }
 
   @Override
   public int hashCode() {
-    int result = type.hashCode();
+    int result = getType().hashCode();
         result = 31 * result + wacn.hashCode();
         result = 31 * result + systemId.hashCode();
         result = 31 * result + rfSubsystemId.hashCode();

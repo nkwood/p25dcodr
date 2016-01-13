@@ -25,7 +25,6 @@ $ java -jar target/p25dcodr-0.1.jar server config.yml
  + POST DirectCaptureRequest -> /channels/traffic/direct
 
 ## TODO
- + finish Kinesis Stream record batching
  + implement /channels/traffic/direct endpoint
  + health checks, metrics, logging
 

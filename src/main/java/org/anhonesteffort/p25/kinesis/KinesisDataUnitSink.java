@@ -52,19 +52,19 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter {
     this.sender = sender;
 
     switch (channelId.getType()) {
-      case ChannelId.TYPE_CONTROL:
+      case CONTROL:
         controlId = Optional.of(control((ControlChannelId) channelId));
         directId  = Optional.empty();
         groupId   = Optional.empty();
         break;
 
-      case ChannelId.TYPE_TRAFFIC_DIRECT:
+      case TRAFFIC_DIRECT:
         controlId = Optional.empty();
         directId  = Optional.of(direct((DirectChannelId) channelId));
         groupId   = Optional.empty();
         break;
 
-      case ChannelId.TYPE_TRAFFIC_GROUP:
+      case TRAFFIC_GROUP:
         controlId = Optional.empty();
         directId  = Optional.empty();
         groupId   = Optional.of(group((GroupChannelId) channelId));
