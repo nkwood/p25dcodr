@@ -20,7 +20,6 @@ package org.anhonesteffort.p25.kinesis;
 import org.anhonesteffort.dsp.Sink;
 import org.anhonesteffort.kinesis.pack.MessagePackingException;
 import org.anhonesteffort.kinesis.producer.KinesisRecordProducer;
-import org.anhonesteffort.kinesis.proto.ProtoP25;
 import org.anhonesteffort.kinesis.proto.ProtoP25Factory;
 import org.anhonesteffort.p25.model.ChannelId;
 import org.anhonesteffort.p25.model.ControlChannelId;
@@ -28,23 +27,20 @@ import org.anhonesteffort.p25.model.DirectChannelId;
 import org.anhonesteffort.p25.model.GroupChannelId;
 import org.anhonesteffort.p25.monitor.DataUnitCounter;
 import org.anhonesteffort.p25.protocol.frame.DataUnit;
+import org.capnproto.MessageBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
-
 import static org.anhonesteffort.kinesis.proto.ProtoP25.P25DataUnit;
-import static org.anhonesteffort.kinesis.proto.ProtoP25.RfSubsystemId;
+import static org.anhonesteffort.kinesis.proto.ProtoP25.P25ChannelId;
 
 public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter {
 
   private static final Logger log = LoggerFactory.getLogger(KinesisDataUnitSink.class);
   private final ProtoP25Factory protocol = new ProtoP25Factory();
 
-  private final KinesisRecordProducer                      sender;
-  private final Optional<ProtoP25.ControlChannelId.Reader> controlId;
-  private final Optional<ProtoP25.DirectChannelId.Reader>  directId;
-  private final Optional<ProtoP25.GroupChannelId.Reader>   groupId;
+  private final KinesisRecordProducer sender;
+  private final P25ChannelId.Reader   channelId;
 
   private Integer dataUnitCount = 0;
 
@@ -53,21 +49,15 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter {
 
     switch (channelId.getType()) {
       case CONTROL:
-        controlId = Optional.of(control((ControlChannelId) channelId));
-        directId  = Optional.empty();
-        groupId   = Optional.empty();
+        this.channelId = translate((ControlChannelId) channelId);
         break;
 
       case TRAFFIC_DIRECT:
-        controlId = Optional.empty();
-        directId  = Optional.of(direct((DirectChannelId) channelId));
-        groupId   = Optional.empty();
+        this.channelId = translate((DirectChannelId) channelId);
         break;
 
       case TRAFFIC_GROUP:
-        controlId = Optional.empty();
-        directId  = Optional.empty();
-        groupId   = Optional.of(group((GroupChannelId) channelId));
+        this.channelId = translate((GroupChannelId) channelId);
         break;
 
       default:
@@ -75,20 +65,22 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter {
     }
   }
 
-  private RfSubsystemId.Reader rfss(ChannelId id) {
-    return protocol.rfSubsystemId(id.getWacn(), id.getSystemId(), id.getRfSubsystemId());
+  private P25ChannelId.Reader translate(ControlChannelId id) {
+    return protocol.controlId(
+        id.getWacn(), id.getSystemId(), id.getRfSubsystemId(), id.getSiteId()
+    );
   }
 
-  private ProtoP25.ControlChannelId.Reader control(ControlChannelId id) {
-    return protocol.controlChannelId(rfss(id), id.getSiteId());
+  private P25ChannelId.Reader translate(DirectChannelId id) {
+    return protocol.directId(
+        id.getWacn(), id.getSystemId(), id.getRfSubsystemId(), id.getSourceId(), id.getDestinationId()
+    );
   }
 
-  private ProtoP25.DirectChannelId.Reader direct(DirectChannelId id) {
-    return protocol.directChannelId(rfss(id), id.getSourceId(), id.getDestinationId());
-  }
-
-  private ProtoP25.GroupChannelId.Reader group(GroupChannelId id) {
-    return protocol.groupChannelId(rfss(id), id.getSourceId(), id.getGroupId());
+  private P25ChannelId.Reader translate(GroupChannelId id) {
+    return protocol.groupId(
+        id.getWacn(), id.getSystemId(), id.getRfSubsystemId(), id.getSourceId(), id.getGroupId()
+    );
   }
 
   @Override
@@ -99,24 +91,17 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter {
       dataUnitCount++;
     }
 
-    P25DataUnit.Reader message = null;
-
-    if (controlId.isPresent()) {
-      message = protocol.controlDataUnit(controlId.get(), element.getBytes().array());
-    } else if (directId.isPresent()) {
-      message = protocol.directDataUnit(directId.get(), element.getBytes().array());
-    } else if (groupId.isPresent()) {
-      message = protocol.groupDataUnit(groupId.get(), element.getBytes().array());
-    }
+    P25DataUnit.Reader dataUnit = protocol.dataUnit(channelId, element.getBytes().array());
+    MessageBuilder     message  = protocol.message(System.currentTimeMillis(), dataUnit);
 
     try {
 
-      if (!sender.queue(protocol.p25DataUnit(System.currentTimeMillis(), message))) {
-        log.warn("sender queue has overflowed, data units have been lost");
+      if (!sender.queue(message)) {
+        log.warn(channelId + " sender queue has overflowed, data units lost");
       }
 
     } catch (MessagePackingException e) {
-      log.error("error packing message for send", e);
+      log.error(channelId + " error packing message for send", e);
     }
   }
 
