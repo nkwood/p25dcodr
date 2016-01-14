@@ -27,7 +27,6 @@ import org.anhonesteffort.p25.model.DirectChannelId;
 import org.anhonesteffort.p25.model.GroupChannelId;
 import org.anhonesteffort.p25.monitor.DataUnitCounter;
 import org.anhonesteffort.p25.protocol.frame.DataUnit;
-import org.capnproto.MessageBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,12 +90,14 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter {
       dataUnitCount++;
     }
 
-    P25DataUnit.Reader dataUnit = protocol.dataUnit(channelId, element.getBytes().array());
-    MessageBuilder     message  = protocol.message(System.currentTimeMillis(), dataUnit);
+    P25DataUnit.Reader dataUnit = protocol.dataUnit(
+        channelId, element.getNid().getNac(),
+        element.getNid().getDuid().getId(), element.getBytes().array()
+    );
 
     try {
 
-      if (!sender.queue(message)) {
+      if (!sender.queue(protocol.message(System.currentTimeMillis(), dataUnit))) {
         log.warn(channelId + " sender queue has overflowed, data units lost");
       }
 

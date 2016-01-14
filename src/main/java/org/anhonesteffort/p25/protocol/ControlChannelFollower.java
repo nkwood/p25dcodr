@@ -23,7 +23,6 @@ import org.anhonesteffort.p25.model.GroupChannelId;
 import org.anhonesteffort.p25.model.FollowRequest;
 import org.anhonesteffort.p25.model.GroupCaptureRequest;
 import org.anhonesteffort.p25.protocol.frame.DataUnit;
-import org.anhonesteffort.p25.protocol.frame.Duid;
 import org.anhonesteffort.p25.protocol.frame.TrunkSignalDataUnit;
 import org.anhonesteffort.p25.protocol.frame.tsbk.GroupVoiceChannelGrant;
 import org.anhonesteffort.p25.protocol.frame.tsbk.IdUpdateBlock;

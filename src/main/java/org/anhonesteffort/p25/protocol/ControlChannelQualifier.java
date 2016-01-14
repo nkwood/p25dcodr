@@ -20,7 +20,6 @@ package org.anhonesteffort.p25.protocol;
 import org.anhonesteffort.dsp.Sink;
 import org.anhonesteffort.p25.model.ControlChannelQualities;
 import org.anhonesteffort.p25.protocol.frame.DataUnit;
-import org.anhonesteffort.p25.protocol.frame.Duid;
 import org.anhonesteffort.p25.protocol.frame.TrunkSignalDataUnit;
 import org.anhonesteffort.p25.protocol.frame.tsbk.IdUpdateBlock;
 import org.anhonesteffort.p25.protocol.frame.tsbk.NetworkStatusBroadcastMessage;
