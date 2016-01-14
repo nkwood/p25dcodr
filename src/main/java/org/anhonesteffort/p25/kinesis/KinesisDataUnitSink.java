@@ -92,7 +92,7 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter {
 
     P25DataUnit.Reader dataUnit = protocol.dataUnit(
         channelId, element.getNid().getNac(),
-        element.getNid().getDuid().getId(), element.getBytes().array()
+        element.getNid().getDuid().getId(), element.getBuffer().array()
     );
 
     try {
