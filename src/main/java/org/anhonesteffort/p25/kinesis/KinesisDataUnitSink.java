@@ -17,6 +17,8 @@
 
 package org.anhonesteffort.p25.kinesis;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import org.anhonesteffort.dsp.Sink;
 import org.anhonesteffort.kinesis.pack.MessagePackingException;
 import org.anhonesteffort.kinesis.producer.KinesisRecordProducer;
@@ -33,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import static org.anhonesteffort.kinesis.proto.ProtoP25.P25DataUnit;
 import static org.anhonesteffort.kinesis.proto.ProtoP25.P25ChannelId;
 
-public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter {
+public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, FutureCallback<String> {
 
   private static final Logger log = LoggerFactory.getLogger(KinesisDataUnitSink.class);
   private final ProtoP25Factory protocol = new ProtoP25Factory();
@@ -43,7 +45,7 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter {
 
   private Integer dataUnitCount = 0;
 
-  public KinesisDataUnitSink(KinesisRecordProducer sender, ChannelId channelId) {
+  protected KinesisDataUnitSink(KinesisRecordProducer sender, ChannelId channelId) {
     this.sender = sender;
 
     switch (channelId.getType()) {
@@ -97,9 +99,10 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter {
 
     try {
 
-      if (!sender.queue(protocol.message(System.currentTimeMillis(), dataUnit))) {
-        log.warn(channelId + " sender queue has overflowed, data units lost");
-      }
+      Futures.addCallback(
+          sender.put(protocol.message(System.currentTimeMillis(), dataUnit)),
+          this
+      );
 
     } catch (MessagePackingException e) {
       log.error(channelId + " error packing message for send", e);
@@ -114,6 +117,16 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter {
   @Override
   public void resetDataUnitCount() {
     dataUnitCount = 0;
+  }
+
+  @Override
+  public void onSuccess(String sequenceNumber) {
+    log.debug(channelId + " kinesis record sent, sequence number " + sequenceNumber);
+  }
+
+  @Override
+  public void onFailure(Throwable error) {
+    log.warn(channelId + " kinesis record send failed", error);
   }
 
 }

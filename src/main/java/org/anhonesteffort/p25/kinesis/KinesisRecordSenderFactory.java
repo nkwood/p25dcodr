@@ -19,10 +19,8 @@ package org.anhonesteffort.p25.kinesis;
 
 import org.anhonesteffort.kinesis.producer.KinesisClientFactory;
 import org.anhonesteffort.kinesis.producer.KinesisRecordProducer;
+import org.anhonesteffort.kinesis.producer.PutRecordTaskFactory;
 import org.anhonesteffort.p25.model.ChannelId;
-import org.anhonesteffort.p25.model.ControlChannelId;
-import org.anhonesteffort.p25.model.DirectChannelId;
-import org.anhonesteffort.p25.model.GroupChannelId;
 
 public class KinesisRecordSenderFactory {
 
@@ -35,27 +33,27 @@ public class KinesisRecordSenderFactory {
   }
 
   public KinesisRecordProducer create(ChannelId channelId) {
+    String partitionKey = channelId.toString();
+    Long   messageDelay;
+
     switch (channelId.getType()) {
       case CONTROL:
-        ControlChannelId control = (ControlChannelId) channelId;
-        return new KinesisRecordProducer(
-            config, clients.create(), control.toString(), config.getControlDelayMaxMs(), config.getSenderQueueSize()
-        );
+        messageDelay = config.getControlDelayMaxMs();
+        break;
 
       case TRAFFIC_DIRECT:
-        DirectChannelId direct = (DirectChannelId) channelId;
-        return new KinesisRecordProducer(
-            config, clients.create(), direct.toString(), config.getTrafficDelayMaxMs(), config.getSenderQueueSize()
-        );
-
       case TRAFFIC_GROUP:
-        GroupChannelId group = (GroupChannelId) channelId;
-        return new KinesisRecordProducer(
-            config, clients.create(), group.toString(), config.getTrafficDelayMaxMs(), config.getSenderQueueSize()
-        );
+        messageDelay = config.getTrafficDelayMaxMs();
+        break;
+
+      default:
+        throw new IllegalArgumentException("unknown channel type " + channelId.getType());
     }
 
-    throw new IllegalArgumentException("unknown channel type " + channelId.getType());
+    return new KinesisRecordProducer(
+        new PutRecordTaskFactory(config, clients.create()),
+        partitionKey, messageDelay, config.getSenderQueueSize()
+    );
   }
 
 }
