@@ -41,24 +41,26 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, Fut
   private final ProtoP25Factory protocol = new ProtoP25Factory();
 
   private final KinesisRecordProducer sender;
-  private final P25ChannelId.Reader   channelId;
+  private final ChannelId             channelId;
+  private final P25ChannelId.Reader   protoId;
 
   private Integer dataUnitCount = 0;
 
   protected KinesisDataUnitSink(KinesisRecordProducer sender, ChannelId channelId) {
-    this.sender = sender;
+    this.sender    = sender;
+    this.channelId = channelId;
 
     switch (channelId.getType()) {
       case CONTROL:
-        this.channelId = translate((ControlChannelId) channelId);
+        this.protoId = translate((ControlChannelId) channelId);
         break;
 
       case TRAFFIC_DIRECT:
-        this.channelId = translate((DirectChannelId) channelId);
+        this.protoId = translate((DirectChannelId) channelId);
         break;
 
       case TRAFFIC_GROUP:
-        this.channelId = translate((GroupChannelId) channelId);
+        this.protoId = translate((GroupChannelId) channelId);
         break;
 
       default:
@@ -93,7 +95,7 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, Fut
     }
 
     P25DataUnit.Reader dataUnit = protocol.dataUnit(
-        channelId, element.getNid().getNac(),
+        protoId, element.getNid().getNac(),
         element.getNid().getDuid().getId(), element.getBuffer().array()
     );
 
