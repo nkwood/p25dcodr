@@ -28,7 +28,7 @@ import org.anhonesteffort.p25.P25Config;
 import org.anhonesteffort.p25.P25DcodrConfig;
 import org.anhonesteffort.p25.chnlbrkr.ChnlBrkrController;
 import org.anhonesteffort.p25.chnlbrkr.SamplesSourceHandler;
-import org.anhonesteffort.p25.kinesis.KinesisRecordSenderFactory;
+import org.anhonesteffort.p25.kinesis.KinesisRecordProducerFactory;
 import org.anhonesteffort.p25.model.ChannelId;
 import org.anhonesteffort.p25.model.GroupCaptureRequest;
 import org.anhonesteffort.p25.monitor.ChannelMonitor;
@@ -61,17 +61,17 @@ public class TrafficChannelCaptureResource {
   private final Queue<ChannelId> pendingRequests = new ConcurrentLinkedQueue<>();
   private final Object           txnLock         = new Object();
 
-  private final P25DcodrConfig             config;
-  private final ChnlBrkrController         chnlBrkr;
-  private final ChannelMonitor             channelMonitor;
-  private final KinesisRecordSenderFactory senderFactory;
-  private final ListeningExecutorService   dspPool;
+  private final P25DcodrConfig               config;
+  private final ChnlBrkrController           chnlBrkr;
+  private final ChannelMonitor               channelMonitor;
+  private final KinesisRecordProducerFactory senderFactory;
+  private final ListeningExecutorService     dspPool;
 
-  public TrafficChannelCaptureResource(P25DcodrConfig             config,
-                                       ChnlBrkrController         chnlBrkr,
-                                       ChannelMonitor             channelMonitor,
-                                       KinesisRecordSenderFactory senderFactory,
-                                       ListeningExecutorService   dspPool)
+  public TrafficChannelCaptureResource(P25DcodrConfig               config,
+                                       ChnlBrkrController           chnlBrkr,
+                                       ChannelMonitor               channelMonitor,
+                                       KinesisRecordProducerFactory senderFactory,
+                                       ListeningExecutorService     dspPool)
   {
     this.config         = config;
     this.chnlBrkr       = chnlBrkr;

@@ -34,7 +34,7 @@ import org.anhonesteffort.kinesis.producer.KinesisClientFactory;
 import org.anhonesteffort.p25.chnlbrkr.ChnlBrkrConnectionFactory;
 import org.anhonesteffort.p25.chnlbrkr.ChnlBrkrController;
 import org.anhonesteffort.p25.health.DumbCheck;
-import org.anhonesteffort.p25.kinesis.KinesisRecordSenderFactory;
+import org.anhonesteffort.p25.kinesis.KinesisRecordProducerFactory;
 import org.anhonesteffort.p25.monitor.ChannelMonitor;
 import org.anhonesteffort.p25.monitor.RetryingControlChannelMonitor;
 import org.anhonesteffort.p25.resource.ControlChannelFollowingResource;
@@ -98,8 +98,8 @@ public class P25DcodrApplication extends Application<P25DcodrConfig> {
     ChnlBrkrController        chnlBrkr        = new ChnlBrkrController(brkrHost, brkrConnections);
     ChannelMonitor            channelMonitor  = new RetryingControlChannelMonitor(config, qualifyTarget, followTarget);
 
-    KinesisClientFactory       kinesisClients = new KinesisClientFactory(config.getKinesis(), kinesisPool);
-    KinesisRecordSenderFactory kinesisSenders = new KinesisRecordSenderFactory(config.getKinesis(), kinesisClients);
+    KinesisClientFactory         kinesisClients = new KinesisClientFactory(config.getKinesis(), kinesisPool);
+    KinesisRecordProducerFactory kinesisSenders = new KinesisRecordProducerFactory(config.getKinesis(), kinesisClients);
 
     environment.healthChecks().register("dumb", new DumbCheck());
     environment.jersey().register(new ControlChannelQualifyingResource(config, chnlBrkr, dspPool));

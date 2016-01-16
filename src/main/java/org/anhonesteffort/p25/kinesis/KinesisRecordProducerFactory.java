@@ -22,12 +22,12 @@ import org.anhonesteffort.kinesis.producer.KinesisRecordProducer;
 import org.anhonesteffort.kinesis.producer.PutRecordTaskFactory;
 import org.anhonesteffort.p25.model.ChannelId;
 
-public class KinesisRecordSenderFactory {
+public class KinesisRecordProducerFactory {
 
   private final KinesisConfig        config;
   private final KinesisClientFactory clients;
 
-  public KinesisRecordSenderFactory(KinesisConfig config, KinesisClientFactory clients) {
+  public KinesisRecordProducerFactory(KinesisConfig config, KinesisClientFactory clients) {
     this.config  = config;
     this.clients = clients;
   }
