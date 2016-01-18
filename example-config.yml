@@ -1,4 +1,4 @@
-dspPoolSize: 8
+dspPoolSize: 6
 brkrHostname: localhost
 brkrPort: 9090
 channelRequestTimeoutMs: 4000
@@ -24,9 +24,9 @@ kinesis:
   messageSizeMax: 2048
   payloadsPerRecordMax: 1
   senderPoolSize: 6
-  senderQueueSize: 32
+  senderQueueSize: 10
   controlDelayMaxMs: 30000
-  trafficDelayMaxMs: 10000
+  trafficDelayMaxMs: 30000
 
 logging:
   level: INFO
