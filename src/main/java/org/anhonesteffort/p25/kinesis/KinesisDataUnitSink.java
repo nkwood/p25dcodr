@@ -128,7 +128,7 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, Fut
 
   @Override
   public void onFailure(Throwable error) {
-    log.warn(channelId + " kinesis record send failed", error);
+    log.error(channelId + " kinesis record send failed", error);
   }
 
 }

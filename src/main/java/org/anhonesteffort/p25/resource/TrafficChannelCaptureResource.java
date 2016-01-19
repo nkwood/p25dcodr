@@ -131,8 +131,8 @@ public class TrafficChannelCaptureResource {
       P25ChannelSpec             channelSpec   = new P25ChannelSpec(request.getFrequency());
       P25Channel                 channel       = new P25Channel(config.getP25Config(), channelSpec);
       KinesisRecordProducer      sender        = senderFactory.create(request.getChannelId());
-      GroupTrafficChannelCapture capture       = new GroupTrafficChannelCapture(sender, request.getChannelId());
       ListenableFuture<Void>     channelFuture = dspPool.submit(channel);
+      GroupTrafficChannelCapture capture       = new GroupTrafficChannelCapture(channelFuture, sender, request.getChannelId());
 
       if (!channelMonitor.monitor(request, channelFuture, capture)) {
         pendingRequests.remove(channelId);
