@@ -27,11 +27,13 @@ public class GroupTrafficChannelCapture extends KinesisDataUnitSink {
 
   private final ListenableFuture<Void> future;
 
-  public GroupTrafficChannelCapture(ListenableFuture<Void> future,
-                                    KinesisRecordProducer  sender,
-                                    ChannelId              channelId)
+  public GroupTrafficChannelCapture(KinesisRecordProducer  sender,
+                                    ChannelId              channelId,
+                                    Double                 srcLatitude,
+                                    Double                 srcLongitude,
+                                    ListenableFuture<Void> future)
   {
-    super(sender, channelId);
+    super(sender, channelId, srcLatitude, srcLongitude);
     this.future = future;
   }
 

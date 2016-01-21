@@ -21,10 +21,12 @@ import com.google.common.util.concurrent.SettableFuture;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import org.anhonesteffort.chnlzr.CapnpUtil;
+import org.anhonesteffort.chnlzr.Proto;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
 
 import static org.anhonesteffort.chnlzr.Proto.BaseMessage;
 import static org.anhonesteffort.chnlzr.Proto.ChannelRequest;
+import static org.anhonesteffort.chnlzr.Proto.Capabilities;
 import static org.anhonesteffort.chnlzr.Proto.ChannelState;
 
 public class ChannelRequestHandler extends ChannelHandlerAdapter {
@@ -33,7 +35,8 @@ public class ChannelRequestHandler extends ChannelHandlerAdapter {
   private final ChannelRequest.Reader request;
 
   private ChannelHandlerContext context;
-  private ChannelState.Reader state;
+  private ChannelState.Reader   state;
+  private Capabilities.Reader   capabilities;
 
   public ChannelRequestHandler(SettableFuture<ChannelRequestHandler> future,
                                ChannelRequest.Reader                 request)
@@ -44,6 +47,10 @@ public class ChannelRequestHandler extends ChannelHandlerAdapter {
 
   public ChannelHandlerContext getContext() {
     return context;
+  }
+
+  public Capabilities.Reader getCapabilities() {
+    return capabilities;
   }
 
   public ChannelState.Reader getState() {
@@ -61,9 +68,19 @@ public class ChannelRequestHandler extends ChannelHandlerAdapter {
     BaseMessage.Reader message = (BaseMessage.Reader) msg;
 
     switch (message.getType()) {
+      case CAPABILITIES:
+        capabilities = message.getCapabilities();
+        break;
+
       case CHANNEL_STATE:
-        state = message.getChannelState();
-        future.set(this);
+        if (capabilities == null) {
+          throw new ProtocolErrorException(
+              "channel state received before capabilities", Proto.Error.ERROR_UNKNOWN
+          );
+        } else {
+          state = message.getChannelState();
+          future.set(this);
+        }
         break;
 
       case ERROR:

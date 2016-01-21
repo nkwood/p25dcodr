@@ -158,7 +158,9 @@ public class ControlChannelFollowingResource {
       P25ChannelSpec         channelSpec   = new P25ChannelSpec(request.getFrequency());
       P25Channel             channel       = new P25Channel(config.getP25Config(), channelSpec);
       KinesisRecordProducer  sender        = senderFactory.create(request.getChannelId());
-      ControlChannelFollower follower      = new ControlChannelFollower(request, trafficTarget, sender);
+      Double                 srcLatitude   = samplesSource.getCapabilities().getLatitude();
+      Double                 srcLongitude  = samplesSource.getCapabilities().getLongitude();
+      ControlChannelFollower follower      = new ControlChannelFollower(sender, request, srcLatitude, srcLongitude, trafficTarget);
       ListenableFuture<Void> channelFuture = dspPool.submit(channel);
 
       if (!channelMonitor.monitor(request, channelFuture, follower)) {

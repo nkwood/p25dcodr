@@ -45,11 +45,13 @@ public class ControlChannelFollower extends KinesisDataUnitSink {
   private final FollowRequest followRequest;
   private final WebTarget trafficTarget;
 
-  public ControlChannelFollower(FollowRequest         followRequest,
-                                WebTarget             trafficTarget,
-                                KinesisRecordProducer sender)
+  public ControlChannelFollower(KinesisRecordProducer sender,
+                                FollowRequest         followRequest,
+                                Double                srcLatitude,
+                                Double                srcLongitude,
+                                WebTarget             trafficTarget)
   {
-    super(sender, followRequest.getChannelId());
+    super(sender, followRequest.getChannelId(), srcLatitude, srcLongitude);
     this.followRequest = followRequest;
     this.trafficTarget = trafficTarget;
   }

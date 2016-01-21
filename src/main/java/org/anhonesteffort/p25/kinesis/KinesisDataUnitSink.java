@@ -32,6 +32,8 @@ import org.anhonesteffort.p25.protocol.frame.DataUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+
 import static org.anhonesteffort.kinesis.proto.ProtoP25.P25DataUnit;
 import static org.anhonesteffort.kinesis.proto.ProtoP25.P25ChannelId;
 
@@ -43,12 +45,20 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, Fut
   private final KinesisRecordProducer sender;
   private final ChannelId             channelId;
   private final P25ChannelId.Reader   protoId;
+  private final Double                srcLatitude;
+  private final Double                srcLongitude;
 
   private Integer dataUnitCount = 0;
 
-  protected KinesisDataUnitSink(KinesisRecordProducer sender, ChannelId channelId) {
-    this.sender    = sender;
-    this.channelId = channelId;
+  protected KinesisDataUnitSink(KinesisRecordProducer sender,
+                                ChannelId             channelId,
+                                Double                srcLatitude,
+                                Double                srcLongitude)
+  {
+    this.sender       = sender;
+    this.channelId    = channelId;
+    this.srcLatitude  = srcLatitude;
+    this.srcLongitude = srcLongitude;
 
     switch (channelId.getType()) {
       case CONTROL:
@@ -95,7 +105,7 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, Fut
     }
 
     P25DataUnit.Reader dataUnit = protocol.dataUnit(
-        protoId, element.getNid().getNac(),
+        protoId, srcLatitude, srcLongitude, element.getNid().getNac(),
         element.getNid().getDuid().getId(), element.getBuffer().array()
     );
 
@@ -127,7 +137,7 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, Fut
   }
 
   @Override
-  public void onFailure(Throwable error) {
+  public void onFailure(@Nonnull Throwable error) {
     log.error(channelId + " kinesis record send failed", error);
   }
 

@@ -25,7 +25,7 @@
 
     <groupId>org.anhonesteffort.p25</groupId>
     <artifactId>p25dcodr</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
 
     <properties>
         <dropwizard.version>0.9.1</dropwizard.version>
@@ -95,7 +95,7 @@
         <dependency>
             <groupId>org.anhonesteffort.kinesis</groupId>
             <artifactId>kinesis-common</artifactId>
-            <version>0.1.8</version>
+            <version>0.1.9</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard</groupId>

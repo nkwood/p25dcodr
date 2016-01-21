@@ -98,9 +98,10 @@ public class ChannelMonitor {
         MonitorRecord record = channels.get(key);
         if (record.counter.getDataUnitCount() > 0) {
           record.counter.resetDataUnitCount();
-        } else {
+        } else if (record.future.cancel(true)) {
           log.info(record.reference.getChannelId() + " hit inactive threshold, cancelling");
-          record.future.cancel(true);
+          removeInactive(record);
+        } else {
           removeInactive(record);
         }
       });

@@ -85,7 +85,10 @@ public class ChnlBrkrController {
 
     @Override
     public void onSuccess(ChannelRequestHandler requester) {
-      SamplesSourceHandler samplesSource = new SamplesSourceHandler(requester.getContext(), requester.getState());
+      SamplesSourceHandler samplesSource = new SamplesSourceHandler(
+          requester.getContext(), requester.getCapabilities(), requester.getState()
+      );
+
       requester.getContext().pipeline().replace(requester, "sampler", samplesSource);
 
       if (!sourceFuture.set(samplesSource)) {

@@ -33,6 +33,7 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static org.anhonesteffort.chnlzr.Proto.BaseMessage;
+import static org.anhonesteffort.chnlzr.Proto.Capabilities;
 import static org.anhonesteffort.chnlzr.Proto.ChannelState;
 
 public class SamplesSourceHandler extends ChannelHandlerAdapter {
@@ -42,13 +43,18 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
   private final ChannelHandlerContext context;
   private final ChannelPromise        closePromise;
 
+  private Capabilities.Reader            capabilities;
   private ChannelState.Reader            state;
   private Optional<DynamicSink<Samples>> sink = Optional.empty();
 
-  public SamplesSourceHandler(ChannelHandlerContext context, ChannelState.Reader state) {
-    this.context = context;
-    this.state   = state;
-    closePromise = context.newPromise();
+  public SamplesSourceHandler(ChannelHandlerContext context,
+                              Capabilities.Reader   capabilities,
+                              ChannelState.Reader   state)
+  {
+    this.context      = context;
+    this.capabilities = capabilities;
+    this.state        = state;
+    closePromise      = context.newPromise();
 
     context.channel().closeFuture().addListener(close -> {
       if (close.isSuccess() && !closePromise.isDone())
@@ -58,6 +64,10 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
     });
 
     closePromise.addListener(close -> context.close());
+  }
+
+  public Capabilities.Reader getCapabilities() {
+    return capabilities;
   }
 
   public ChannelFuture getCloseFuture() {
