@@ -25,11 +25,14 @@ import org.anhonesteffort.p25.protocol.frame.tsbk.IdUpdateBlock;
 import org.anhonesteffort.p25.protocol.frame.tsbk.NetworkStatusBroadcastMessage;
 import org.anhonesteffort.p25.protocol.frame.tsbk.RfssStatusBroadcastMessage;
 import org.anhonesteffort.p25.protocol.frame.tsbk.TrunkSignalBlock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
 public class ControlChannelQualifier implements Sink<DataUnit> {
 
+  private final static Logger log = LoggerFactory.getLogger(ControlChannelQualifier.class);
   private final ChannelIdUpdateBlockMap channelIdMap = new ChannelIdUpdateBlockMap();
 
   private Optional<RfssStatusBroadcastMessage> status = Optional.empty();
@@ -59,9 +62,11 @@ public class ControlChannelQualifier implements Sink<DataUnit> {
   public void consume(DataUnit dataUnit) {
     if (!dataUnit.isIntact()) {
       return;
+    } else {
+      dataUnitCount++;
+      log.debug("qualifying -> " + dataUnit.toString());
     }
 
-    dataUnitCount++;
     if (dataUnit.getNid().getDuid().getId() == Duid.ID_TRUNK_SIGNALING) {
       TrunkSignalDataUnit        trunkSignal  = (TrunkSignalDataUnit) dataUnit;
       Optional<TrunkSignalBlock> systemStatus = trunkSignal.getFirstOf(TrunkSignalBlock.NETWORK_STATUS);
