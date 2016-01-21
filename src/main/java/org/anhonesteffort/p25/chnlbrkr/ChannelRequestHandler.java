@@ -74,9 +74,15 @@ public class ChannelRequestHandler extends ChannelHandlerAdapter {
 
       case CHANNEL_STATE:
         if (capabilities == null) {
-          throw new ProtocolErrorException(
+          ProtocolErrorException error = new ProtocolErrorException(
               "channel state received before capabilities", Proto.Error.ERROR_UNKNOWN
           );
+
+          if (future.setException(error)) {
+            context.close();
+          } else {
+            throw error;
+          }
         } else {
           state = message.getChannelState();
           future.set(this);
