@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.anhonesteffort.p25.protocol;
+package org.anhonesteffort.p25.monitor;
 
 import org.anhonesteffort.p25.P25DcodrConfig;
 import org.anhonesteffort.p25.model.ControlChannelId;
@@ -23,10 +23,6 @@ import org.anhonesteffort.p25.model.ControlChannelQualities;
 import org.anhonesteffort.p25.model.FollowRequest;
 import org.anhonesteffort.p25.model.GroupCaptureRequest;
 import org.anhonesteffort.p25.model.GroupChannelId;
-import org.anhonesteffort.p25.monitor.ChannelMonitor;
-import org.anhonesteffort.p25.monitor.DataUnitCounter;
-import org.anhonesteffort.p25.monitor.Identifiable;
-import org.anhonesteffort.p25.monitor.RetryingControlChannelMonitor;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
