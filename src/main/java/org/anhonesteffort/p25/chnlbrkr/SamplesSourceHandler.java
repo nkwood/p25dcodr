@@ -24,13 +24,11 @@ import io.netty.channel.ChannelPromise;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
 import org.anhonesteffort.dsp.sample.DynamicSink;
 import org.anhonesteffort.dsp.sample.Samples;
-import org.capnproto.PrimitiveList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.FloatBuffer;
+import java.nio.ByteBuffer;
 import java.util.Optional;
-import java.util.stream.IntStream;
 
 import static org.anhonesteffort.chnlzr.Proto.BaseMessage;
 import static org.anhonesteffort.chnlzr.Proto.Capabilities;
@@ -96,13 +94,8 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
           break;
         }
 
-        PrimitiveList.Float.Reader samples = message.getSamples().getSamples();
-        FloatBuffer                buffer  = FloatBuffer.allocate(samples.size());
-
-        IntStream.range(0, samples.size())
-                 .forEach(i -> buffer.put(samples.get(i)));
-
-        sink.get().consume(new Samples(buffer));
+        ByteBuffer samples = message.getSamples().getSamples().asByteBuffer();
+        sink.get().consume(new Samples(samples.asFloatBuffer()));
         break;
 
       case ERROR:
