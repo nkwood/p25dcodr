@@ -33,14 +33,6 @@
 
     <repositories>
         <repository>
-            <id>dsp-common-mvn-repo</id>
-            <url>https://raw.github.com/rhodey/dsp-common/mvn-repo/</url>
-            <snapshots>
-                <updatePolicy>always</updatePolicy>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
             <id>chnlzr-common-mvn-repo</id>
             <url>https://raw.github.com/rhodey/chnlzr-common/mvn-repo/</url>
             <snapshots>
@@ -78,19 +70,14 @@
             <version>${dropwizard.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.anhonesteffort.dsp</groupId>
-            <artifactId>dsp-common</artifactId>
-            <version>0.1.4</version>
-        </dependency>
-        <dependency>
             <groupId>org.anhonesteffort.chnlzr</groupId>
             <artifactId>chnlzr-common</artifactId>
-            <version>0.1.4</version>
+            <version>0.1.5</version>
         </dependency>
         <dependency>
             <groupId>org.anhonesteffort.p25</groupId>
             <artifactId>p25-common</artifactId>
-            <version>0.2.1</version>
+            <version>0.2.2</version>
         </dependency>
         <dependency>
             <groupId>org.anhonesteffort.kinesis</groupId>
