@@ -33,7 +33,7 @@ public class KinesisConfig implements KinesisProducerConfig {
   @NotEmpty  private String  secretKey;
   @NotEmpty  private String  appName;
   @NotEmpty  private String  appVersion;
-  @Min(2048) private Integer messageSizeMax;
+  @Min(128)  private Integer messageSizeMax;
   @Min(1)    private Integer payloadsPerRecordMax;
   @Min(1)    private Integer senderPoolSize;
   @Min(1)    private Integer senderQueueSize;
