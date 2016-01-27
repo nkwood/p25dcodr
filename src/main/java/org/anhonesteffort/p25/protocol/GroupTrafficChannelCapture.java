@@ -22,10 +22,14 @@ import org.anhonesteffort.kinesis.producer.KinesisRecordProducer;
 import org.anhonesteffort.p25.kinesis.KinesisDataUnitSink;
 import org.anhonesteffort.p25.model.ChannelId;
 import org.anhonesteffort.p25.protocol.frame.DataUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GroupTrafficChannelCapture extends KinesisDataUnitSink {
 
+  private static final Logger log = LoggerFactory.getLogger(GroupTrafficChannelCapture.class);
   private final ListenableFuture<Void> future;
+  private final ChannelId channelId;
 
   public GroupTrafficChannelCapture(KinesisRecordProducer  sender,
                                     ChannelId              channelId,
@@ -34,7 +38,8 @@ public class GroupTrafficChannelCapture extends KinesisDataUnitSink {
                                     ListenableFuture<Void> future)
   {
     super(sender, channelId, srcLatitude, srcLongitude);
-    this.future = future;
+    this.future    = future;
+    this.channelId = channelId;
   }
 
   @Override
@@ -46,6 +51,7 @@ public class GroupTrafficChannelCapture extends KinesisDataUnitSink {
     switch (element.getNid().getDuid().getId()) {
       case Duid.ID_TERMINATOR_W_LINK:
       case Duid.ID_TERMINATOR_WO_LINK:
+        log.info(channelId + " terminated by protocol, cancelling");
         future.cancel(true);
         break;
     }
