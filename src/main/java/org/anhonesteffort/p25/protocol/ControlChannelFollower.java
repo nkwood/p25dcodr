@@ -85,7 +85,7 @@ public class ControlChannelFollower extends KinesisDataUnitSink {
     Optional<IdUpdateBlock> idBlock   = channelIdMap.getBlockForId(channelId);
 
     if (!idBlock.isPresent()) {
-      log.warn(followRequest.getChannelId() + " unable to process voice channel grant, id map missing " + channelId);
+      log.debug(followRequest.getChannelId() + " unable to process voice channel grant, id map missing " + channelId);
     } else {
       sendRequest(buildCaptureRequest(grant, grant.getDownlinkFreq(idBlock.get())));
     }
