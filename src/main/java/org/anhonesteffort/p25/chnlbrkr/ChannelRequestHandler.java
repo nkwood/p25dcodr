@@ -21,13 +21,13 @@ import com.google.common.util.concurrent.SettableFuture;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import org.anhonesteffort.chnlzr.CapnpUtil;
-import org.anhonesteffort.chnlzr.Proto;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
 
 import static org.anhonesteffort.chnlzr.Proto.BaseMessage;
 import static org.anhonesteffort.chnlzr.Proto.ChannelRequest;
 import static org.anhonesteffort.chnlzr.Proto.Capabilities;
 import static org.anhonesteffort.chnlzr.Proto.ChannelState;
+import static org.anhonesteffort.chnlzr.Proto.Error;
 
 public class ChannelRequestHandler extends ChannelHandlerAdapter {
 
@@ -75,7 +75,7 @@ public class ChannelRequestHandler extends ChannelHandlerAdapter {
       case CHANNEL_STATE:
         if (capabilities == null) {
           ProtocolErrorException error = new ProtocolErrorException(
-              "channel state received before capabilities", Proto.Error.ERROR_UNKNOWN
+              "channel state received before capabilities", Error.ERROR_UNKNOWN
           );
 
           if (future.setException(error)) {

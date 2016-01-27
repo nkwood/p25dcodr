@@ -24,8 +24,6 @@ import io.netty.channel.ChannelPromise;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
 import org.anhonesteffort.dsp.sample.DynamicSink;
 import org.anhonesteffort.dsp.sample.Samples;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.Optional;
@@ -35,8 +33,6 @@ import static org.anhonesteffort.chnlzr.Proto.Capabilities;
 import static org.anhonesteffort.chnlzr.Proto.ChannelState;
 
 public class SamplesSourceHandler extends ChannelHandlerAdapter {
-
-  private static final Logger log = LoggerFactory.getLogger(SamplesSourceHandler.class);
 
   private final ChannelHandlerContext context;
   private final ChannelPromise        closePromise;
@@ -100,7 +96,7 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
 
       case ERROR:
         ProtocolErrorException error = new ProtocolErrorException(
-            "received ERROR while streaming samples", message.getError().getCode()
+            "chnlbrkr sent error while streaming", message.getError().getCode()
         );
         if (!closePromise.isDone()) {
           closePromise.setFailure(error);
@@ -113,8 +109,9 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
 
   @Override
   public void exceptionCaught(ChannelHandlerContext context, Throwable cause) {
-    log.error("caught exception while streaming channel grant", cause);
-    if (!closePromise.isDone()) {closePromise.setFailure(cause);}
+    if (!closePromise.isDone()) {
+      closePromise.setFailure(cause);
+    }
   }
 
   public void close() {
