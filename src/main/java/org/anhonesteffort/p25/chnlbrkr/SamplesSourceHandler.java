@@ -29,7 +29,6 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 
 import static org.anhonesteffort.chnlzr.Proto.BaseMessage;
-import static org.anhonesteffort.chnlzr.Proto.Error;
 import static org.anhonesteffort.chnlzr.Proto.Capabilities;
 import static org.anhonesteffort.chnlzr.Proto.ChannelState;
 
@@ -76,8 +75,7 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
 
   @Override
   public void channelRead(ChannelHandlerContext context, Object msg) throws Exception {
-    ProtocolErrorException error   = null;
-    BaseMessage.Reader     message = (BaseMessage.Reader) msg;
+    BaseMessage.Reader message = (BaseMessage.Reader) msg;
 
     switch (message.getType()) {
       case CHANNEL_STATE:
@@ -88,16 +86,14 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
         break;
 
       case SAMPLES:
-        if (!sink.isPresent()) {
-          break;
+        if (sink.isPresent()) {
+          ByteBuffer samples = message.getSamples().getSamples().asByteBuffer();
+          sink.get().consume(new Samples(samples.asFloatBuffer()));
         }
-
-        ByteBuffer samples = message.getSamples().getSamples().asByteBuffer();
-        sink.get().consume(new Samples(samples.asFloatBuffer()));
         break;
 
       case ERROR:
-        error = new ProtocolErrorException("chnlbrkr sent error while streaming", message.getError().getCode());
+        ProtocolErrorException error = new ProtocolErrorException("chnlbrkr sent error while streaming", message.getError().getCode());
         if (!closePromise.isDone()) {
           closePromise.setFailure(error);
         } else {
@@ -105,12 +101,15 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
         }
         break;
 
+      case BRKR_STATE:
+        break;
+
       default:
-        error = new ProtocolErrorException("chnlbrkr sent unexpected while streaming", Error.ERROR_UNKNOWN);
+        IllegalStateException ex = new IllegalStateException("chnlbrkr sent unexpected while streaming " + message.getType().name());
         if (!closePromise.isDone()) {
-          closePromise.setFailure(error);
+          closePromise.setFailure(ex);
         } else {
-          throw error;
+          throw ex;
         }
         break;
     }

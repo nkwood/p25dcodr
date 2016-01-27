@@ -27,7 +27,6 @@ import static org.anhonesteffort.chnlzr.Proto.BaseMessage;
 import static org.anhonesteffort.chnlzr.Proto.ChannelRequest;
 import static org.anhonesteffort.chnlzr.Proto.Capabilities;
 import static org.anhonesteffort.chnlzr.Proto.ChannelState;
-import static org.anhonesteffort.chnlzr.Proto.Error;
 
 public class ChannelRequestHandler extends ChannelHandlerAdapter {
 
@@ -65,8 +64,7 @@ public class ChannelRequestHandler extends ChannelHandlerAdapter {
 
   @Override
   public void channelRead(ChannelHandlerContext context, Object msg) throws ProtocolErrorException {
-    ProtocolErrorException error   = null;
-    BaseMessage.Reader     message = (BaseMessage.Reader) msg;
+    BaseMessage.Reader message = (BaseMessage.Reader) msg;
 
     switch (message.getType()) {
       case CAPABILITIES:
@@ -75,11 +73,11 @@ public class ChannelRequestHandler extends ChannelHandlerAdapter {
 
       case CHANNEL_STATE:
         if (capabilities == null) {
-          error = new ProtocolErrorException("channel state received before capabilities", Error.ERROR_UNKNOWN);
-          if (future.setException(error)) {
+          IllegalStateException ex = new IllegalStateException("channel state received before capabilities");
+          if (future.setException(ex)) {
             context.close();
           } else {
-            throw error;
+            throw ex;
           }
         } else {
           state = message.getChannelState();
@@ -88,7 +86,7 @@ public class ChannelRequestHandler extends ChannelHandlerAdapter {
         break;
 
       case ERROR:
-        error = new ProtocolErrorException("chnlbrkr sent error", message.getError().getCode());
+        ProtocolErrorException error = new ProtocolErrorException("chnlbrkr sent error", message.getError().getCode());
         if (future.setException(error)) {
           context.close();
         } else {
@@ -100,11 +98,11 @@ public class ChannelRequestHandler extends ChannelHandlerAdapter {
         break;
 
       default:
-        error = new ProtocolErrorException("chnlbrkr sent unexpected " + message.getType().name(), Error.ERROR_UNKNOWN);
-        if (future.setException(error)) {
+        IllegalStateException ex = new IllegalStateException("chnlbrkr sent unexpected " + message.getType().name());
+        if (future.setException(ex)) {
           context.close();
         } else {
-          throw error;
+          throw ex;
         }
         break;
     }
