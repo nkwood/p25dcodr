@@ -65,7 +65,8 @@ public class ChannelRequestHandler extends ChannelHandlerAdapter {
 
   @Override
   public void channelRead(ChannelHandlerContext context, Object msg) throws ProtocolErrorException {
-    BaseMessage.Reader message = (BaseMessage.Reader) msg;
+    ProtocolErrorException error   = null;
+    BaseMessage.Reader     message = (BaseMessage.Reader) msg;
 
     switch (message.getType()) {
       case CAPABILITIES:
@@ -74,10 +75,7 @@ public class ChannelRequestHandler extends ChannelHandlerAdapter {
 
       case CHANNEL_STATE:
         if (capabilities == null) {
-          ProtocolErrorException error = new ProtocolErrorException(
-              "channel state received before capabilities", Error.ERROR_UNKNOWN
-          );
-
+          error = new ProtocolErrorException("channel state received before capabilities", Error.ERROR_UNKNOWN);
           if (future.setException(error)) {
             context.close();
           } else {
@@ -90,10 +88,19 @@ public class ChannelRequestHandler extends ChannelHandlerAdapter {
         break;
 
       case ERROR:
-        ProtocolErrorException error = new ProtocolErrorException(
-            "chnlbrkr sent us an error", message.getError().getCode()
-        );
+        error = new ProtocolErrorException("chnlbrkr sent error", message.getError().getCode());
+        if (future.setException(error)) {
+          context.close();
+        } else {
+          throw error;
+        }
+        break;
 
+      case BRKR_STATE:
+        break;
+
+      default:
+        error = new ProtocolErrorException("chnlbrkr sent unexpected " + message.getType().name(), Error.ERROR_UNKNOWN);
         if (future.setException(error)) {
           context.close();
         } else {
