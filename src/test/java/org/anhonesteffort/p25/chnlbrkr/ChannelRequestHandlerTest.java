@@ -115,7 +115,7 @@ public class ChannelRequestHandlerTest {
       assert false;
 
     } catch (ExecutionException e) {
-      assert (e.getCause() instanceof ProtocolErrorException);
+      assert (e.getCause() instanceof IllegalStateException);
     }
   }
 
