@@ -29,6 +29,7 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 
 import static org.anhonesteffort.chnlzr.Proto.BaseMessage;
+import static org.anhonesteffort.chnlzr.Proto.Error;
 import static org.anhonesteffort.chnlzr.Proto.Capabilities;
 import static org.anhonesteffort.chnlzr.Proto.ChannelState;
 
@@ -75,7 +76,8 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
 
   @Override
   public void channelRead(ChannelHandlerContext context, Object msg) throws Exception {
-    BaseMessage.Reader message = (BaseMessage.Reader) msg;
+    ProtocolErrorException error   = null;
+    BaseMessage.Reader     message = (BaseMessage.Reader) msg;
 
     switch (message.getType()) {
       case CHANNEL_STATE:
@@ -95,9 +97,16 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
         break;
 
       case ERROR:
-        ProtocolErrorException error = new ProtocolErrorException(
-            "chnlbrkr sent error while streaming", message.getError().getCode()
-        );
+        error = new ProtocolErrorException("chnlbrkr sent error while streaming", message.getError().getCode());
+        if (!closePromise.isDone()) {
+          closePromise.setFailure(error);
+        } else {
+          throw error;
+        }
+        break;
+
+      default:
+        error = new ProtocolErrorException("chnlbrkr sent unexpected while streaming", Error.ERROR_UNKNOWN);
         if (!closePromise.isDone()) {
           closePromise.setFailure(error);
         } else {
@@ -109,6 +118,7 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
 
   @Override
   public void exceptionCaught(ChannelHandlerContext context, Throwable cause) {
+    context.close();
     if (!closePromise.isDone()) {
       closePromise.setFailure(cause);
     }
