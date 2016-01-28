@@ -51,10 +51,11 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
     closePromise      = context.newPromise();
 
     context.channel().closeFuture().addListener(close -> {
-      if (close.isSuccess() && !closePromise.isDone())
+      if (close.isSuccess() && !closePromise.isDone()) {
         closePromise.setSuccess();
-      else if (!closePromise.isDone())
+      } else if (!closePromise.isDone()) {
         closePromise.setFailure(close.cause());
+      }
     });
 
     closePromise.addListener(close -> context.close());
@@ -71,6 +72,10 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
   public void setSink(DynamicSink<Samples> sink) {
     sink.onSourceStateChange(state.getSampleRate(), state.getCenterFrequency());
     this.sink = Optional.of(sink);
+  }
+
+  public void close() {
+    context.close();
   }
 
   @Override
@@ -122,8 +127,9 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
     }
   }
 
-  public void close() {
-    context.close();
+  @Override
+  public void channelInactive(ChannelHandlerContext context) {
+    sink = Optional.empty();
   }
 
 }
