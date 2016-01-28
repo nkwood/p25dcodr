@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.anhonesteffort.p25.chnlbrkr;
+package org.anhonesteffort.p25.chnlzr;
 
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -26,14 +26,13 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.util.concurrent.ExecutionException;
 
-public class ChnlBrkrConnectionHandlerTest {
+public class ChnlzrConnectionHandlerTest {
 
   @Test
   public void testFutureCompletesOnChannelActive() throws Exception {
-    final SettableFuture<ChnlBrkrConnectionHandler> FUTURE  = SettableFuture.create();
-    final ChannelHandlerContext                     CONTEXT = Mockito.mock(ChannelHandlerContext.class);
-    final ChnlBrkrConnectionHandler                 HANDLER = new ChnlBrkrConnectionHandler(FUTURE);
-
+    final SettableFuture<ChnlzrConnectionHandler> FUTURE  = SettableFuture.create();
+    final ChannelHandlerContext                   CONTEXT = Mockito.mock(ChannelHandlerContext.class);
+    final ChnlzrConnectionHandler                 HANDLER = new ChnlzrConnectionHandler(FUTURE);
 
     assert !FUTURE.isDone();
 
@@ -46,10 +45,9 @@ public class ChnlBrkrConnectionHandlerTest {
 
   @Test
   public void testGetContext() throws Exception {
-    final SettableFuture<ChnlBrkrConnectionHandler> FUTURE  = SettableFuture.create();
-    final ChannelHandlerContext                     CONTEXT = Mockito.mock(ChannelHandlerContext.class);
-    final ChnlBrkrConnectionHandler                 HANDLER = new ChnlBrkrConnectionHandler(FUTURE);
-
+    final SettableFuture<ChnlzrConnectionHandler> FUTURE  = SettableFuture.create();
+    final ChannelHandlerContext                   CONTEXT = Mockito.mock(ChannelHandlerContext.class);
+    final ChnlzrConnectionHandler                 HANDLER = new ChnlzrConnectionHandler(FUTURE);
 
     HANDLER.channelActive(CONTEXT);
 
@@ -60,10 +58,9 @@ public class ChnlBrkrConnectionHandlerTest {
 
   @Test
   public void testFutureErrorsOnChannelInactive() throws InterruptedException {
-    final SettableFuture<ChnlBrkrConnectionHandler> FUTURE  = SettableFuture.create();
-    final ChannelHandlerContext                     CONTEXT = Mockito.mock(ChannelHandlerContext.class);
-    final ChnlBrkrConnectionHandler                 HANDLER = new ChnlBrkrConnectionHandler(FUTURE);
-
+    final SettableFuture<ChnlzrConnectionHandler> FUTURE  = SettableFuture.create();
+    final ChannelHandlerContext                   CONTEXT = Mockito.mock(ChannelHandlerContext.class);
+    final ChnlzrConnectionHandler                 HANDLER = new ChnlzrConnectionHandler(FUTURE);
 
     HANDLER.channelInactive(CONTEXT);
 
@@ -80,10 +77,10 @@ public class ChnlBrkrConnectionHandlerTest {
 
   @Test
   public void testFutureErrorsOnChannelException() throws Exception {
-    final SettableFuture<ChnlBrkrConnectionHandler> FUTURE  = SettableFuture.create();
-    final ChannelHandlerContext                     CONTEXT = Mockito.mock(ChannelHandlerContext.class);
-    final IOException                               ERROR   = new IOException("qqq");
-    final ChnlBrkrConnectionHandler                 HANDLER = new ChnlBrkrConnectionHandler(FUTURE);
+    final SettableFuture<ChnlzrConnectionHandler> FUTURE  = SettableFuture.create();
+    final ChannelHandlerContext                   CONTEXT = Mockito.mock(ChannelHandlerContext.class);
+    final IOException                             ERROR   = new IOException("qqq");
+    final ChnlzrConnectionHandler                 HANDLER = new ChnlzrConnectionHandler(FUTURE);
 
     HANDLER.exceptionCaught(CONTEXT, ERROR);
 
@@ -100,10 +97,10 @@ public class ChnlBrkrConnectionHandlerTest {
 
   @Test
   public void testContextClosedOnChannelException() throws Exception {
-    final SettableFuture<ChnlBrkrConnectionHandler> FUTURE  = SettableFuture.create();
-    final ChannelHandlerContext                     CONTEXT = Mockito.mock(ChannelHandlerContext.class);
-    final IOException                               ERROR   = new IOException("qqq");
-    final ChnlBrkrConnectionHandler                 HANDLER = new ChnlBrkrConnectionHandler(FUTURE);
+    final SettableFuture<ChnlzrConnectionHandler> FUTURE  = SettableFuture.create();
+    final ChannelHandlerContext                   CONTEXT = Mockito.mock(ChannelHandlerContext.class);
+    final IOException                             ERROR   = new IOException("qqq");
+    final ChnlzrConnectionHandler                 HANDLER = new ChnlzrConnectionHandler(FUTURE);
 
     Mockito.verify(CONTEXT, Mockito.never()).close();
     HANDLER.exceptionCaught(CONTEXT, ERROR);

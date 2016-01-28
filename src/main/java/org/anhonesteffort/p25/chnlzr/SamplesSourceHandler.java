@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.anhonesteffort.p25.chnlbrkr;
+package org.anhonesteffort.p25.chnlzr;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerAdapter;
@@ -74,7 +74,9 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
   }
 
   @Override
-  public void channelRead(ChannelHandlerContext context, Object msg) throws Exception {
+  public void channelRead(ChannelHandlerContext context, Object msg)
+      throws ProtocolErrorException, IllegalStateException
+  {
     BaseMessage.Reader message = (BaseMessage.Reader) msg;
 
     switch (message.getType()) {
@@ -93,7 +95,7 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
         break;
 
       case ERROR:
-        ProtocolErrorException error = new ProtocolErrorException("chnlbrkr sent error while streaming", message.getError().getCode());
+        ProtocolErrorException error = new ProtocolErrorException("chnlzr sent error while streaming", message.getError().getCode());
         if (!closePromise.isDone()) {
           closePromise.setFailure(error);
         } else {
@@ -101,11 +103,8 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
         }
         break;
 
-      case BRKR_STATE:
-        break;
-
       default:
-        IllegalStateException ex = new IllegalStateException("chnlbrkr sent unexpected while streaming " + message.getType().name());
+        IllegalStateException ex = new IllegalStateException("chnlzr sent unexpected while streaming " + message.getType().name());
         if (!closePromise.isDone()) {
           closePromise.setFailure(ex);
         } else {

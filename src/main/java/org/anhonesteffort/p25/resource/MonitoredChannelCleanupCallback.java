@@ -21,7 +21,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
-import org.anhonesteffort.p25.chnlbrkr.SamplesSourceHandler;
+import org.anhonesteffort.p25.chnlzr.SamplesSourceHandler;
 import org.anhonesteffort.p25.model.ChannelId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,10 +65,10 @@ class MonitoredChannelCleanupCallback implements FutureCallback<Void>, ChannelFu
   public void operationComplete(ChannelFuture sourceClosedFuture) {
     if (cleanupComplete.compareAndSet(false, true)) {
       if (sourceClosedFuture.isSuccess()) {
-        log.warn(channelId + " chnlbrkr connection closed unexpectedly");
+        log.warn(channelId + " chnlzr connection closed unexpectedly");
       } else if (sourceClosedFuture.cause() instanceof ProtocolErrorException) {
         ProtocolErrorException error = (ProtocolErrorException) sourceClosedFuture.cause();
-        log.warn(channelId + " chnlbrkr closed connection with error: " + error.getCode());
+        log.warn(channelId + " chnlzr closed connection with error: " + error.getCode());
       } else {
         log.error(channelId + " unexpected netty error", sourceClosedFuture.cause());
       }

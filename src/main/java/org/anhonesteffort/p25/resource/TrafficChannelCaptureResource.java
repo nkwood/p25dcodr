@@ -26,8 +26,8 @@ import org.anhonesteffort.p25.P25Channel;
 import org.anhonesteffort.p25.P25ChannelSpec;
 import org.anhonesteffort.p25.P25Config;
 import org.anhonesteffort.p25.P25DcodrConfig;
-import org.anhonesteffort.p25.chnlbrkr.ChnlBrkrController;
-import org.anhonesteffort.p25.chnlbrkr.SamplesSourceHandler;
+import org.anhonesteffort.p25.chnlzr.ChnlzrController;
+import org.anhonesteffort.p25.chnlzr.SamplesSourceHandler;
 import org.anhonesteffort.p25.kinesis.KinesisRecordProducerFactory;
 import org.anhonesteffort.p25.model.ChannelId;
 import org.anhonesteffort.p25.model.GroupCaptureRequest;
@@ -62,19 +62,19 @@ public class TrafficChannelCaptureResource {
   private final Object           txnLock         = new Object();
 
   private final P25DcodrConfig               config;
-  private final ChnlBrkrController           chnlBrkr;
+  private final ChnlzrController             chnlzr;
   private final ChannelMonitor               channelMonitor;
   private final KinesisRecordProducerFactory senderFactory;
   private final ListeningExecutorService     dspPool;
 
   public TrafficChannelCaptureResource(P25DcodrConfig               config,
-                                       ChnlBrkrController           chnlBrkr,
+                                       ChnlzrController             chnlzr,
                                        ChannelMonitor               channelMonitor,
                                        KinesisRecordProducerFactory senderFactory,
                                        ListeningExecutorService     dspPool)
   {
     this.config         = config;
-    this.chnlBrkr       = chnlBrkr;
+    this.chnlzr         = chnlzr;
     this.channelMonitor = channelMonitor;
     this.senderFactory  = senderFactory;
     this.dspPool        = dspPool;
@@ -105,7 +105,7 @@ public class TrafficChannelCaptureResource {
     }
 
     ChannelRequest.Reader                  channelRequest = transform(request);
-    ListenableFuture<SamplesSourceHandler> sourceFuture   = chnlBrkr.createSourceFor(channelRequest);
+    ListenableFuture<SamplesSourceHandler> sourceFuture   = chnlzr.createSourceFor(channelRequest);
 
     Futures.addCallback(sourceFuture, new SamplesSourceCallback(request, response));
 

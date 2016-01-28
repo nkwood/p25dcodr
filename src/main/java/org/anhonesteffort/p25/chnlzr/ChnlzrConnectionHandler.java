@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.anhonesteffort.p25.chnlbrkr;
+package org.anhonesteffort.p25.chnlzr;
 
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.channel.ChannelHandlerAdapter;
@@ -23,12 +23,12 @@ import io.netty.channel.ChannelHandlerContext;
 
 import java.net.ConnectException;
 
-public class ChnlBrkrConnectionHandler extends ChannelHandlerAdapter {
+public class ChnlzrConnectionHandler extends ChannelHandlerAdapter {
 
-  private final SettableFuture<ChnlBrkrConnectionHandler> future;
+  private final SettableFuture<ChnlzrConnectionHandler> future;
   private ChannelHandlerContext context;
 
-  public ChnlBrkrConnectionHandler(SettableFuture<ChnlBrkrConnectionHandler> future) {
+  public ChnlzrConnectionHandler(SettableFuture<ChnlzrConnectionHandler> future) {
     this.future = future;
   }
 
@@ -44,7 +44,7 @@ public class ChnlBrkrConnectionHandler extends ChannelHandlerAdapter {
 
   @Override
   public void channelInactive(ChannelHandlerContext context) {
-    future.setException(new ConnectException("failed to connect to chnlbrkr"));
+    future.setException(new ConnectException("failed to connect to chnlzr"));
   }
 
   @Override

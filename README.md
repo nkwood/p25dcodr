@@ -1,6 +1,6 @@
 # p25dcodr
 
-transform [chnlbrkr](https://github.com/rhodey/chnlbrkr) sample streams into
+transform [chnlzr](https://github.com/rhodey/chnlzr-server) sample streams into
 an Amazon Kinesis stream of P25 data units.
 
 ## Configure
@@ -13,7 +13,7 @@ $ mvn package
 
 ## Run
 ```
-$ java -jar target/p25dcodr-0.1.jar server config.yml
+$ java -jar target/p25dcodr-0.3.0.jar server config.yml
 ```
 
 ## API
@@ -30,6 +30,6 @@ $ java -jar target/p25dcodr-0.1.jar server config.yml
 
 ## License
 
-Copyright 2015 An Honest Effort LLC
+Copyright 2016 An Honest Effort LLC
 
 Licensed under the GPLv3: http://www.gnu.org/licenses/gpl-3.0.html

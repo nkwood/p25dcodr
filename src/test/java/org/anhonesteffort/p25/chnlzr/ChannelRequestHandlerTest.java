@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.anhonesteffort.p25.chnlbrkr;
+package org.anhonesteffort.p25.chnlzr;
 
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.channel.ChannelHandlerContext;

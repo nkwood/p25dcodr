@@ -1,6 +1,6 @@
 dspPoolSize: 6
-brkrHostname: localhost
-brkrPort: 9090
+chnlzrHostname: localhost
+chnlzrPort: 7070
 channelRequestTimeoutMs: 4000
 channelQualifyTimeMs: 8000
 minDataUnitRate: 1.0

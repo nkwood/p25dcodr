@@ -40,8 +40,8 @@ public class P25DcodrConfig extends Configuration {
   private KinesisConfig kinesis;
 
   @Min(1)   private Integer dspPoolSize;
-  @NotEmpty private String  brkrHostname;
-  @Min(1)   private Integer brkrPort;
+  @NotEmpty private String  chnlzrHostname;
+  @Min(1)   private Integer chnlzrPort;
   @Min(1)   private Long    channelRequestTimeoutMs;
   @Min(1)   private Long    channelQualifyTimeMs;
   @NotNull  private Double  minDataUnitRate;
@@ -67,13 +67,13 @@ public class P25DcodrConfig extends Configuration {
   }
 
   @JsonProperty
-  public String getBrkrHostname() {
-    return brkrHostname;
+  public String getChnlzrHostname() {
+    return chnlzrHostname;
   }
 
   @JsonProperty
-  public Integer getBrkrPort() {
-    return brkrPort;
+  public Integer getChnlzrPort() {
+    return chnlzrPort;
   }
 
   @JsonProperty

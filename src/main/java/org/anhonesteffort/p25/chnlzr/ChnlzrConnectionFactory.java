@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.anhonesteffort.p25.chnlbrkr;
+package org.anhonesteffort.p25.chnlzr;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
@@ -34,27 +34,25 @@ import org.anhonesteffort.chnlzr.pipeline.IdleStateHeartbeatWriter;
 import java.net.ConnectException;
 import java.util.concurrent.TimeUnit;
 
-import static org.anhonesteffort.chnlzr.Proto.HostId;
-
-public class ChnlBrkrConnectionFactory {
+public class ChnlzrConnectionFactory {
 
   private final ChnlzrConfig             config;
   private final Class<? extends Channel> channel;
   private final EventLoopGroup           workerGroup;
 
-  public ChnlBrkrConnectionFactory(ChnlzrConfig             config,
-                                   Class<? extends Channel> channel,
-                                   EventLoopGroup           workerGroup)
+  public ChnlzrConnectionFactory(ChnlzrConfig             config,
+                                 Class<? extends Channel> channel,
+                                 EventLoopGroup           workerGroup)
   {
     this.config      = config;
     this.channel     = channel;
     this.workerGroup = workerGroup;
   }
 
-  public ListenableFuture<ChnlBrkrConnectionHandler> create(HostId.Reader brkrHost) {
-    SettableFuture<ChnlBrkrConnectionHandler> future     = SettableFuture.create();
-    ChnlBrkrConnectionHandler                 connection = new ChnlBrkrConnectionHandler(future);
-    Bootstrap                                 bootstrap  = new Bootstrap();
+  public ListenableFuture<ChnlzrConnectionHandler> create(HostId chnlzrHost) {
+    SettableFuture<ChnlzrConnectionHandler> future     = SettableFuture.create();
+    ChnlzrConnectionHandler                 connection = new ChnlzrConnectionHandler(future);
+    Bootstrap                               bootstrap  = new Bootstrap();
 
     bootstrap.group(workerGroup)
              .channel(channel)
@@ -73,10 +71,10 @@ public class ChnlBrkrConnectionFactory {
                }
              });
 
-    bootstrap.connect(brkrHost.getHostname().toString(), brkrHost.getPort())
+    bootstrap.connect(chnlzrHost.getHostname(), chnlzrHost.getPort())
              .addListener(connect -> {
                if (!connect.isSuccess())
-                 future.setException(new ConnectException("failed to connect to chnlbrkr"));
+                 future.setException(new ConnectException("failed to connect to chnlzr"));
              });
 
     return future;

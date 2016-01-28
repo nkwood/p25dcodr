@@ -19,7 +19,7 @@ package org.anhonesteffort.p25.resource;
 
 import com.google.common.util.concurrent.FutureCallback;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
-import org.anhonesteffort.p25.chnlbrkr.SamplesSourceHandler;
+import org.anhonesteffort.p25.chnlzr.SamplesSourceHandler;
 import org.anhonesteffort.p25.model.ChannelId;
 import org.slf4j.Logger;
 

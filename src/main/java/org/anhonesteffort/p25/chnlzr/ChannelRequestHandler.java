@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.anhonesteffort.p25.chnlbrkr;
+package org.anhonesteffort.p25.chnlzr;
 
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.channel.ChannelHandlerAdapter;
@@ -63,7 +63,9 @@ public class ChannelRequestHandler extends ChannelHandlerAdapter {
   }
 
   @Override
-  public void channelRead(ChannelHandlerContext context, Object msg) throws ProtocolErrorException {
+  public void channelRead(ChannelHandlerContext context, Object msg)
+      throws ProtocolErrorException, IllegalStateException
+  {
     BaseMessage.Reader message = (BaseMessage.Reader) msg;
 
     switch (message.getType()) {
@@ -86,7 +88,7 @@ public class ChannelRequestHandler extends ChannelHandlerAdapter {
         break;
 
       case ERROR:
-        ProtocolErrorException error = new ProtocolErrorException("chnlbrkr sent error", message.getError().getCode());
+        ProtocolErrorException error = new ProtocolErrorException("chnlzr sent error", message.getError().getCode());
         if (future.setException(error)) {
           context.close();
         } else {
@@ -94,11 +96,8 @@ public class ChannelRequestHandler extends ChannelHandlerAdapter {
         }
         break;
 
-      case BRKR_STATE:
-        break;
-
       default:
-        IllegalStateException ex = new IllegalStateException("chnlbrkr sent unexpected " + message.getType().name());
+        IllegalStateException ex = new IllegalStateException("chnlzr sent unexpected " + message.getType().name());
         if (future.setException(ex)) {
           context.close();
         } else {

@@ -29,12 +29,12 @@ import org.anhonesteffort.p25.P25Channel;
 import org.anhonesteffort.p25.P25ChannelSpec;
 import org.anhonesteffort.p25.P25Config;
 import org.anhonesteffort.p25.P25DcodrConfig;
-import org.anhonesteffort.p25.chnlbrkr.SamplesSourceHandler;
+import org.anhonesteffort.p25.chnlzr.SamplesSourceHandler;
 import org.anhonesteffort.p25.model.ControlChannelQualities;
 import org.anhonesteffort.p25.model.QualifyChannelId;
 import org.anhonesteffort.p25.model.QualifyRequest;
 import org.anhonesteffort.p25.protocol.ControlChannelQualifier;
-import org.anhonesteffort.p25.chnlbrkr.ChnlBrkrController;
+import org.anhonesteffort.p25.chnlzr.ChnlzrController;
 import org.glassfish.jersey.server.ManagedAsync;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,16 +64,16 @@ public class ControlChannelQualifyingResource {
   private static final Logger log = LoggerFactory.getLogger(ControlChannelQualifyingResource.class);
 
   private final P25DcodrConfig           config;
-  private final ChnlBrkrController       chnlBrkr;
+  private final ChnlzrController         chnlzr;
   private final ListeningExecutorService dspPool;
 
   public ControlChannelQualifyingResource(P25DcodrConfig           config,
-                                          ChnlBrkrController       chnlBrkr,
+                                          ChnlzrController         chnlzr,
                                           ListeningExecutorService dspPool)
   {
-    this.config   = config;
-    this.chnlBrkr = chnlBrkr;
-    this.dspPool  = dspPool;
+    this.config  = config;
+    this.chnlzr  = chnlzr;
+    this.dspPool = dspPool;
   }
 
   private ChannelRequest.Reader transform(QualifyRequest request) {
@@ -88,7 +88,7 @@ public class ControlChannelQualifyingResource {
   @ManagedAsync
   public void qualify(@NotNull @Valid QualifyRequest request, @Suspended AsyncResponse response) {
     ChannelRequest.Reader                  channelRequest = transform(request);
-    ListenableFuture<SamplesSourceHandler> sourceFuture   = chnlBrkr.createSourceFor(channelRequest);
+    ListenableFuture<SamplesSourceHandler> sourceFuture   = chnlzr.createSourceFor(channelRequest);
 
     Futures.addCallback(sourceFuture, new SamplesSourceCallback(channelRequest, response));
 
@@ -190,11 +190,11 @@ public class ControlChannelQualifyingResource {
         channelFuture.cancel(true);
 
         if (sourceClosedFuture.isSuccess()) {
-          log.warn("unable to qualify channel, chnlbrkr connection closed unexpectedly");
+          log.warn("unable to qualify channel, chnlzr connection closed unexpectedly");
           response.resume(Response.status(503).build());
         } else if (sourceClosedFuture.cause() instanceof ProtocolErrorException) {
           ProtocolErrorException error = (ProtocolErrorException) sourceClosedFuture.cause();
-          log.warn("unable to qualify channel, chnlbrkr closed connection with error: " + error.getCode());
+          log.warn("unable to qualify channel, chnlzr closed connection with error: " + error.getCode());
           response.resume(Response.status(503).build());
         } else {
           log.error("unable to qualify channel, unexpected netty error", sourceClosedFuture.cause());

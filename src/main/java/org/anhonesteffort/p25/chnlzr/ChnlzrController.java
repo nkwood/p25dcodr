@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.anhonesteffort.p25.chnlbrkr;
+package org.anhonesteffort.p25.chnlzr;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -24,41 +24,40 @@ import com.google.common.util.concurrent.SettableFuture;
 
 import javax.annotation.Nonnull;
 
-import static org.anhonesteffort.chnlzr.Proto.HostId;
 import static org.anhonesteffort.chnlzr.Proto.ChannelRequest;
 
-public class ChnlBrkrController {
+public class ChnlzrController {
 
-  private final HostId.Reader             brkrHost;
-  private final ChnlBrkrConnectionFactory factory;
+  private final HostId chnlzrHost;
+  private final ChnlzrConnectionFactory factory;
 
-  public ChnlBrkrController(HostId.Reader brkrHost, ChnlBrkrConnectionFactory factory) {
-    this.brkrHost = brkrHost;
-    this.factory  = factory;
+  public ChnlzrController(HostId chnlzrHost, ChnlzrConnectionFactory factory) {
+    this.chnlzrHost = chnlzrHost;
+    this.factory    = factory;
   }
 
   public ListenableFuture<SamplesSourceHandler> createSourceFor(ChannelRequest.Reader request) {
-    ListenableFuture<ChnlBrkrConnectionHandler> connectFuture = factory.create(brkrHost);
-    SettableFuture<SamplesSourceHandler>        sourceFuture  = SettableFuture.create();
+    ListenableFuture<ChnlzrConnectionHandler> connectFuture = factory.create(chnlzrHost);
+    SettableFuture<SamplesSourceHandler>      sourceFuture  = SettableFuture.create();
 
-    Futures.addCallback(connectFuture, new BrkrConnectionCallback(sourceFuture, request));
+    Futures.addCallback(connectFuture, new ChnlzrConnectionCallback(sourceFuture, request));
 
     return sourceFuture;
   }
 
-  private class BrkrConnectionCallback implements FutureCallback<ChnlBrkrConnectionHandler> {
+  private class ChnlzrConnectionCallback implements FutureCallback<ChnlzrConnectionHandler> {
     private final SettableFuture<SamplesSourceHandler> sourceFuture;
     private final ChannelRequest.Reader                request;
 
-    public BrkrConnectionCallback(SettableFuture<SamplesSourceHandler> sourceFuture,
-                                  ChannelRequest.Reader                request)
+    public ChnlzrConnectionCallback(SettableFuture<SamplesSourceHandler> sourceFuture,
+                                    ChannelRequest.Reader                request)
     {
       this.sourceFuture = sourceFuture;
       this.request      = request;
     }
 
     @Override
-    public void onSuccess(ChnlBrkrConnectionHandler connection) {
+    public void onSuccess(ChnlzrConnectionHandler connection) {
       if (sourceFuture.isCancelled()) {
         connection.getContext().close();
       } else {
@@ -89,7 +88,7 @@ public class ChnlBrkrController {
           requester.getContext(), requester.getCapabilities(), requester.getState()
       );
 
-      requester.getContext().pipeline().replace(requester, "sampler", samplesSource);
+      requester.getContext().pipeline().replace(requester, "streamer", samplesSource);
 
       if (!sourceFuture.set(samplesSource)) {
         requester.getContext().close();
