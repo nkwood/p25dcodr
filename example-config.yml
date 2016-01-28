@@ -1,9 +1,9 @@
 dspPoolSize: 6
 chnlzrHostname: localhost
-chnlzrPort: 7070
-channelRequestTimeoutMs: 4000
+chnlzrPort: 8080
+channelRequestTimeoutMs: 2000
 channelQualifyTimeMs: 8000
-minDataUnitRate: 1.0
+minDataUnitRate: 0.5
 controlChannelRetryCount: 2
 controlChannelRetryDelayMs: 5000
 
@@ -12,7 +12,7 @@ server:
   applicationContextPath: /
   connector:
     type: http
-    port: 7070
+    port: 8080
 
 kinesis:
   region: us-west-2
@@ -20,11 +20,11 @@ kinesis:
   accessKeyId: aaabbb111222
   secretKey: cccddd333444
   appName: p25dcodr
-  appVersion: v0.1
-  messageSizeMax: 2048
+  appVersion: v0.3.0
+  messageSizeMax: 512
   payloadsPerRecordMax: 1
   senderPoolSize: 6
-  senderQueueSize: 10
+  senderQueueSize: 48
   controlDelayMaxMs: 30000
   trafficDelayMaxMs: 30000
 
