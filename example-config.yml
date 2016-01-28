@@ -3,6 +3,7 @@ chnlzrHostname: localhost
 chnlzrPort: 8080
 channelRequestTimeoutMs: 2000
 channelQualifyTimeMs: 8000
+samplesQueueSize: 10
 minDataUnitRate: 0.5
 controlChannelRetryCount: 2
 controlChannelRetryDelayMs: 5000

@@ -112,7 +112,7 @@ public class ControlChannelQualifyingResource {
     @Override
     public void onSuccess(SamplesSourceHandler samplesSource) {
       P25ChannelSpec          channelSpec = new P25ChannelSpec(request.getCenterFrequency());
-      P25Channel              channel     = new P25Channel(config.getP25Config(), channelSpec);
+      P25Channel              channel     = new P25Channel(config.getP25Config(), channelSpec, config.getSamplesQueueSize());
       ControlChannelQualifier qualifier   = new ControlChannelQualifier();
 
       ListenableFuture<Void>   channelFuture   = dspPool.submit(channel);

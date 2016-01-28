@@ -129,7 +129,7 @@ public class TrafficChannelCaptureResource {
     @Override
     public void onSuccess(SamplesSourceHandler samplesSource) {
       P25ChannelSpec             channelSpec   = new P25ChannelSpec(request.getFrequency());
-      P25Channel                 channel       = new P25Channel(config.getP25Config(), channelSpec);
+      P25Channel                 channel       = new P25Channel(config.getP25Config(), channelSpec, config.getSamplesQueueSize());
       KinesisRecordProducer      sender        = senderFactory.create(request.getChannelId());
       Double                     srcLatitude   = samplesSource.getCapabilities().getLatitude();
       Double                     srcLongitude  = samplesSource.getCapabilities().getLongitude();

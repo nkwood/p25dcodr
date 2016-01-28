@@ -44,6 +44,7 @@ public class P25DcodrConfig extends Configuration {
   @Min(1)   private Integer chnlzrPort;
   @Min(1)   private Long    channelRequestTimeoutMs;
   @Min(1)   private Long    channelQualifyTimeMs;
+  @Min(1)   private Integer samplesQueueSize;
   @NotNull  private Double  minDataUnitRate;
   @Min(0)   private Integer controlChannelRetryCount;
   @Min(0)   private Long    controlChannelRetryDelayMs;
@@ -84,6 +85,11 @@ public class P25DcodrConfig extends Configuration {
   @JsonProperty
   public Long getChannelQualifyTimeMs() {
     return channelQualifyTimeMs;
+  }
+
+  @JsonProperty
+  public Integer getSamplesQueueSize() {
+    return samplesQueueSize;
   }
 
   @JsonProperty
