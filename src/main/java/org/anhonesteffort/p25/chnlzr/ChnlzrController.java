@@ -24,6 +24,7 @@ import com.google.common.util.concurrent.SettableFuture;
 
 import javax.annotation.Nonnull;
 
+import static org.anhonesteffort.chnlzr.Proto.Capabilities;
 import static org.anhonesteffort.chnlzr.Proto.ChannelRequest;
 
 public class ChnlzrController {
@@ -65,7 +66,7 @@ public class ChnlzrController {
         ChannelRequestHandler                 requester     = new ChannelRequestHandler(requestFuture, request);
 
         connection.getContext().pipeline().replace(connection, "requester", requester);
-        Futures.addCallback(requestFuture, new ChannelRequestCallback(sourceFuture));
+        Futures.addCallback(requestFuture, new ChannelRequestCallback(sourceFuture, connection.getCapabilities()));
       }
     }
 
@@ -77,17 +78,18 @@ public class ChnlzrController {
 
   private class ChannelRequestCallback implements FutureCallback<ChannelRequestHandler> {
     private final SettableFuture<SamplesSourceHandler> sourceFuture;
+    private final Capabilities.Reader capabilities;
 
-    public ChannelRequestCallback(SettableFuture<SamplesSourceHandler> sourceFuture) {
+    public ChannelRequestCallback(SettableFuture<SamplesSourceHandler> sourceFuture,
+                                  Capabilities.Reader                  capabilities)
+    {
       this.sourceFuture = sourceFuture;
+      this.capabilities = capabilities;
     }
 
     @Override
     public void onSuccess(ChannelRequestHandler requester) {
-      SamplesSourceHandler samplesSource = new SamplesSourceHandler(
-          requester.getContext(), requester.getCapabilities(), requester.getState()
-      );
-
+      SamplesSourceHandler samplesSource = new SamplesSourceHandler(requester.getContext(), capabilities, requester.getState());
       requester.getContext().pipeline().replace(requester, "streamer", samplesSource);
 
       if (!sourceFuture.set(samplesSource)) {

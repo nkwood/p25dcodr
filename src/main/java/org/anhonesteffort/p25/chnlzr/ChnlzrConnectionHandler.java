@@ -20,13 +20,18 @@ package org.anhonesteffort.p25.chnlzr;
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import org.anhonesteffort.chnlzr.ProtocolErrorException;
 
 import java.net.ConnectException;
+
+import static org.anhonesteffort.chnlzr.Proto.BaseMessage;
+import static org.anhonesteffort.chnlzr.Proto.Capabilities;
 
 public class ChnlzrConnectionHandler extends ChannelHandlerAdapter {
 
   private final SettableFuture<ChnlzrConnectionHandler> future;
   private ChannelHandlerContext context;
+  private Capabilities.Reader capabilities;
 
   public ChnlzrConnectionHandler(SettableFuture<ChnlzrConnectionHandler> future) {
     this.future = future;
@@ -36,10 +41,45 @@ public class ChnlzrConnectionHandler extends ChannelHandlerAdapter {
     return context;
   }
 
+  public Capabilities.Reader getCapabilities() {
+    return capabilities;
+  }
+
   @Override
   public void channelActive(ChannelHandlerContext context) {
     this.context = context;
-    future.set(this);
+  }
+
+  @Override
+  public void channelRead(ChannelHandlerContext context, Object msg)
+      throws ProtocolErrorException, IllegalStateException
+  {
+    BaseMessage.Reader message = (BaseMessage.Reader) msg;
+
+    switch (message.getType()) {
+      case CAPABILITIES:
+        capabilities = message.getCapabilities();
+        future.set(this);
+        break;
+
+      case ERROR:
+        ProtocolErrorException error = new ProtocolErrorException("chnlzr sent error", message.getError().getCode());
+        if (future.setException(error)) {
+          context.close();
+        } else {
+          throw error;
+        }
+        break;
+
+      default:
+        IllegalStateException ex = new IllegalStateException("chnlzr sent unexpected " + message.getType().name());
+        if (future.setException(ex)) {
+          context.close();
+        } else {
+          throw ex;
+        }
+        break;
+    }
   }
 
   @Override

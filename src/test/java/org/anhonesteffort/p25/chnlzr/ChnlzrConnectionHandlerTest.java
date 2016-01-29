@@ -19,6 +19,8 @@ package org.anhonesteffort.p25.chnlzr;
 
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.channel.ChannelHandlerContext;
+import org.anhonesteffort.chnlzr.CapnpUtil;
+import org.capnproto.MessageBuilder;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -26,22 +28,9 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.util.concurrent.ExecutionException;
 
+import static org.anhonesteffort.chnlzr.Proto.BaseMessage;
+
 public class ChnlzrConnectionHandlerTest {
-
-  @Test
-  public void testFutureCompletesOnChannelActive() throws Exception {
-    final SettableFuture<ChnlzrConnectionHandler> FUTURE  = SettableFuture.create();
-    final ChannelHandlerContext                   CONTEXT = Mockito.mock(ChannelHandlerContext.class);
-    final ChnlzrConnectionHandler                 HANDLER = new ChnlzrConnectionHandler(FUTURE);
-
-    assert !FUTURE.isDone();
-
-    HANDLER.channelActive(CONTEXT);
-
-    assert FUTURE.isDone();
-    assert FUTURE.get().equals(HANDLER);
-    assert HANDLER.getContext().equals(CONTEXT);
-  }
 
   @Test
   public void testGetContext() throws Exception {
@@ -50,6 +39,24 @@ public class ChnlzrConnectionHandlerTest {
     final ChnlzrConnectionHandler                 HANDLER = new ChnlzrConnectionHandler(FUTURE);
 
     HANDLER.channelActive(CONTEXT);
+
+    assert !FUTURE.isDone();
+    assert HANDLER.getContext().equals(CONTEXT);
+  }
+
+  @Test
+  public void testFutureCompletesOnCapabilities() throws Exception {
+    final SettableFuture<ChnlzrConnectionHandler> FUTURE  = SettableFuture.create();
+    final ChannelHandlerContext                   CONTEXT = Mockito.mock(ChannelHandlerContext.class);
+    final ChnlzrConnectionHandler                 HANDLER = new ChnlzrConnectionHandler(FUTURE);
+
+    final MessageBuilder CAPS_MESSAGE = CapnpUtil.capabilities(10d, 20d, 0, 30d, 40d, 50l);
+
+    assert HANDLER.getCapabilities() == null;
+    assert !FUTURE.isDone();
+
+    HANDLER.channelActive(CONTEXT);
+    HANDLER.channelRead(CONTEXT, CAPS_MESSAGE.getRoot(BaseMessage.factory).asReader());
 
     assert FUTURE.isDone();
     assert FUTURE.get().equals(HANDLER);

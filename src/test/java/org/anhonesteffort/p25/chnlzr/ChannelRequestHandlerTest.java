@@ -29,7 +29,6 @@ import java.util.concurrent.ExecutionException;
 
 import static org.anhonesteffort.chnlzr.Proto.BaseMessage;
 import static org.anhonesteffort.chnlzr.Proto.ChannelRequest;
-import static org.anhonesteffort.chnlzr.Proto.Capabilities;
 import static org.anhonesteffort.chnlzr.Proto.ChannelState;
 import static org.anhonesteffort.chnlzr.Proto.Error;
 
@@ -64,80 +63,20 @@ public class ChannelRequestHandlerTest {
   }
 
   @Test
-  public void testSendReceiveCapabilities() throws Exception {
+  public void testSendReceiveChannelState() throws Exception {
     final SettableFuture<ChannelRequestHandler> FUTURE  = SettableFuture.create();
     final ChannelRequest.Reader                 REQUEST = request();
     final ChannelHandlerContext                 CONTEXT = Mockito.mock(ChannelHandlerContext.class);
     final ChannelRequestHandler                 HANDLER = new ChannelRequestHandler(FUTURE, REQUEST);
 
-    final MessageBuilder MESSAGE_SENT = CapnpUtil.capabilities(10d, 20d, 0, 30d, 40d, 50l);
-
-    assert HANDLER.getCapabilities() == null;
-
-    HANDLER.handlerAdded(CONTEXT);
-    HANDLER.channelRead(CONTEXT, MESSAGE_SENT.getRoot(BaseMessage.factory).asReader());
-
-    assert HANDLER.getCapabilities() != null;
-    assert !FUTURE.isDone();
-
-    final Capabilities.Reader CAPS_SENT = MESSAGE_SENT.getRoot(BaseMessage.factory).asReader().getCapabilities();
-    final Capabilities.Reader CAPS_READ = HANDLER.getCapabilities();
-
-    assert CAPS_SENT.getLatitude()       == CAPS_READ.getLatitude();
-    assert CAPS_SENT.getLongitude()      == CAPS_READ.getLongitude();
-    assert CAPS_SENT.getPolarization()   == CAPS_READ.getPolarization();
-    assert CAPS_SENT.getMinFrequency()   == CAPS_READ.getMinFrequency();
-    assert CAPS_SENT.getMaxFrequency()   == CAPS_READ.getMaxFrequency();
-    assert CAPS_SENT.getMaxChannelRate() == CAPS_READ.getMaxChannelRate();
-  }
-
-  @Test
-  public void testSendReceiveChannelStateBeforeCapabilities() throws Exception {
-    final SettableFuture<ChannelRequestHandler> FUTURE  = SettableFuture.create();
-    final ChannelRequest.Reader                 REQUEST = request();
-    final ChannelHandlerContext                 CONTEXT = Mockito.mock(ChannelHandlerContext.class);
-    final ChannelRequestHandler                 HANDLER = new ChannelRequestHandler(FUTURE, REQUEST);
-
-    HANDLER.handlerAdded(CONTEXT);
-    assert !FUTURE.isDone();
-    Mockito.verify(CONTEXT, Mockito.never()).close();
-
-    final MessageBuilder MESSAGE_SENT = CapnpUtil.state(10l, 20d);
-    HANDLER.channelRead(CONTEXT, MESSAGE_SENT.getRoot(BaseMessage.factory).asReader());
-
-    assert FUTURE.isDone();
-    assert HANDLER.getState() == null;
-    Mockito.verify(CONTEXT, Mockito.times(1)).close();
-
-    try {
-
-      FUTURE.get();
-      assert false;
-
-    } catch (ExecutionException e) {
-      assert (e.getCause() instanceof IllegalStateException);
-    }
-  }
-
-  @Test
-  public void testSendReceiveCapabilitiesThenChannelState() throws Exception {
-    final SettableFuture<ChannelRequestHandler> FUTURE  = SettableFuture.create();
-    final ChannelRequest.Reader                 REQUEST = request();
-    final ChannelHandlerContext                 CONTEXT = Mockito.mock(ChannelHandlerContext.class);
-    final ChannelRequestHandler                 HANDLER = new ChannelRequestHandler(FUTURE, REQUEST);
-
-    final MessageBuilder CAPS_MESSAGE  = CapnpUtil.capabilities(10d, 20d, 0, 30d, 40d, 50l);
     final MessageBuilder STATE_MESSAGE = CapnpUtil.state(10l, 20d);
 
-    assert HANDLER.getCapabilities() == null;
-    assert HANDLER.getState()        == null;
+    assert HANDLER.getState() == null;
 
     HANDLER.handlerAdded(CONTEXT);
-    HANDLER.channelRead(CONTEXT, CAPS_MESSAGE.getRoot(BaseMessage.factory).asReader());
     HANDLER.channelRead(CONTEXT, STATE_MESSAGE.getRoot(BaseMessage.factory).asReader());
 
-    assert HANDLER.getCapabilities() != null;
-    assert HANDLER.getState()        != null;
+    assert HANDLER.getState() != null;
 
     assert FUTURE.isDone();
     assert FUTURE.get().equals(HANDLER);

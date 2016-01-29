@@ -25,7 +25,6 @@ import org.anhonesteffort.chnlzr.ProtocolErrorException;
 
 import static org.anhonesteffort.chnlzr.Proto.BaseMessage;
 import static org.anhonesteffort.chnlzr.Proto.ChannelRequest;
-import static org.anhonesteffort.chnlzr.Proto.Capabilities;
 import static org.anhonesteffort.chnlzr.Proto.ChannelState;
 
 public class ChannelRequestHandler extends ChannelHandlerAdapter {
@@ -34,22 +33,15 @@ public class ChannelRequestHandler extends ChannelHandlerAdapter {
   private final ChannelRequest.Reader request;
 
   private ChannelHandlerContext context;
-  private ChannelState.Reader   state;
-  private Capabilities.Reader   capabilities;
+  private ChannelState.Reader state;
 
-  public ChannelRequestHandler(SettableFuture<ChannelRequestHandler> future,
-                               ChannelRequest.Reader                 request)
-  {
+  public ChannelRequestHandler(SettableFuture<ChannelRequestHandler> future, ChannelRequest.Reader request) {
     this.future  = future;
     this.request = request;
   }
 
   public ChannelHandlerContext getContext() {
     return context;
-  }
-
-  public Capabilities.Reader getCapabilities() {
-    return capabilities;
   }
 
   public ChannelState.Reader getState() {
@@ -69,22 +61,9 @@ public class ChannelRequestHandler extends ChannelHandlerAdapter {
     BaseMessage.Reader message = (BaseMessage.Reader) msg;
 
     switch (message.getType()) {
-      case CAPABILITIES:
-        capabilities = message.getCapabilities();
-        break;
-
       case CHANNEL_STATE:
-        if (capabilities == null) {
-          IllegalStateException ex = new IllegalStateException("channel state received before capabilities");
-          if (future.setException(ex)) {
-            context.close();
-          } else {
-            throw ex;
-          }
-        } else {
-          state = message.getChannelState();
-          future.set(this);
-        }
+        state = message.getChannelState();
+        future.set(this);
         break;
 
       case ERROR:
