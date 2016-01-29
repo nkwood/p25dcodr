@@ -36,9 +36,9 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
 
   private final ChannelHandlerContext context;
   private final ChannelPromise        closePromise;
+  private final Capabilities.Reader   capabilities;
+  private       ChannelState.Reader   state;
 
-  private Capabilities.Reader            capabilities;
-  private ChannelState.Reader            state;
   private Optional<DynamicSink<Samples>> sink = Optional.empty();
 
   public SamplesSourceHandler(ChannelHandlerContext context,

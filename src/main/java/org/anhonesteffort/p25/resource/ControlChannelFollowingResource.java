@@ -114,6 +114,8 @@ public class ControlChannelFollowingResource {
   @POST
   @ManagedAsync
   public void follow(@NotNull @Valid FollowRequest request, @Suspended AsyncResponse response) {
+    log.info(request.getChannelId() + " requested");
+
     synchronized (txnLock) {
       if (pendingRequests.contains(request.getChannelId()) ||
           channelMonitor.contains(request.getChannelId()))
@@ -125,7 +127,6 @@ public class ControlChannelFollowingResource {
       }
     }
 
-    log.info(request.getChannelId() + " requesting sample source");
     ChannelRequest.Reader                  channelRequest = transform(request);
     ListenableFuture<SamplesSourceHandler> sourceFuture   = chnlzr.createSourceFor(channelRequest);
 

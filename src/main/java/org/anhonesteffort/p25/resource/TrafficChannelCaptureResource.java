@@ -91,7 +91,7 @@ public class TrafficChannelCaptureResource {
   @POST
   @Path("/group")
   public void capture(@NotNull @Valid GroupCaptureRequest request, @Suspended AsyncResponse response) {
-    log.debug(request.getChannelId() + " requested");
+    log.info(request.getChannelId() + " requested");
 
     synchronized (txnLock) {
       if (pendingRequests.contains(request.getChannelId()) ||
@@ -133,8 +133,8 @@ public class TrafficChannelCaptureResource {
       KinesisRecordProducer      sender        = senderFactory.create(request.getChannelId());
       Double                     srcLatitude   = samplesSource.getCapabilities().getLatitude();
       Double                     srcLongitude  = samplesSource.getCapabilities().getLongitude();
+      GroupTrafficChannelCapture capture       = new GroupTrafficChannelCapture(sender, request.getChannelId(), srcLatitude, srcLongitude);
       ListenableFuture<Void>     channelFuture = dspPool.submit(channel);
-      GroupTrafficChannelCapture capture       = new GroupTrafficChannelCapture(sender, request.getChannelId(), srcLatitude, srcLongitude, channelFuture);
 
       if (!channelMonitor.monitor(request, channelFuture, capture)) {
         pendingRequests.remove(channelId);
