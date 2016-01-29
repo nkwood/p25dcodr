@@ -31,13 +31,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.InvocationCallback;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Optional;
-import java.util.concurrent.Future;
 
-public class ControlChannelFollower extends KinesisDataUnitSink {
+public class ControlChannelFollower extends KinesisDataUnitSink implements InvocationCallback<Response> {
 
   private static final Logger log = LoggerFactory.getLogger(ControlChannelFollower.class);
 
@@ -56,9 +56,9 @@ public class ControlChannelFollower extends KinesisDataUnitSink {
     this.trafficTarget = trafficTarget;
   }
 
-  private Future<Response> sendRequest(GroupCaptureRequest request) {
-    return trafficTarget.request().async().post(
-        Entity.entity(request, MediaType.APPLICATION_JSON_TYPE)
+  private void sendRequest(GroupCaptureRequest request) {
+    trafficTarget.request().async().post(
+        Entity.entity(request, MediaType.APPLICATION_JSON_TYPE), this
     );
   }
 
@@ -113,4 +113,13 @@ public class ControlChannelFollower extends KinesisDataUnitSink {
     }
   }
 
+  @Override
+  public void completed(Response response) {
+    response.close();
+  }
+
+  @Override
+  public void failed(Throwable error) {
+    log.error("post to traffic target failed", error);
+  }
 }
