@@ -30,6 +30,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.InvocationCallback;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,6 +43,7 @@ public class RetryingControlChannelMonitor extends ChannelMonitor {
 
   private static final Logger log = LoggerFactory.getLogger(RetryingControlChannelMonitor.class);
 
+  private final FollowCallback                   followBack = new FollowCallback();
   private final Map<ChannelId, QualifyTask>      delayed    = new ConcurrentHashMap<>();
   private final Map<ChannelId, QualifyingRecord> qualifying = new ConcurrentHashMap<>();
   private final Object                           txnLock    = new Object();
@@ -178,7 +180,9 @@ public class RetryingControlChannelMonitor extends ChannelMonitor {
         if (request.getChannelId().equals(transform(qualities))) {
           log.info(request.getChannelId() + " qualified, posting back to /channels/control");
           qualifying.remove(request.getChannelId());
-          followTarget.request().async().post(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE));
+          followTarget.request().async().post(
+              Entity.entity(request, MediaType.APPLICATION_JSON_TYPE), followBack
+          );
         } else {
           log.info(request.getChannelId() + " replaced by different site, will not try again");
           qualifying.remove(request.getChannelId());
@@ -200,6 +204,19 @@ public class RetryingControlChannelMonitor extends ChannelMonitor {
           qualifying.remove(request.getChannelId());
         }
       }
+    }
+  }
+
+  private static class FollowCallback implements InvocationCallback<Response> {
+
+    @Override
+    public void completed(Response response) {
+      response.close();
+    }
+
+    @Override
+    public void failed(Throwable error) {
+      log.error("post to follow target failed", error);
     }
   }
 

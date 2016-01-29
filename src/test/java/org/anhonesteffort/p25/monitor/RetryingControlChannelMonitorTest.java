@@ -231,7 +231,7 @@ public class RetryingControlChannelMonitorTest {
     QUALIFY_CALLBACK.getValue().completed(QUALITIES);
 
     assert !MONITOR.contains(id);
-    Mockito.verify(FOLLOW_ASYNC, Mockito.times(1)).post(Mockito.any(Entity.class));
+    Mockito.verify(FOLLOW_ASYNC, Mockito.times(1)).post(Mockito.any(Entity.class), Mockito.any(InvocationCallback.class));
   }
 
 }
