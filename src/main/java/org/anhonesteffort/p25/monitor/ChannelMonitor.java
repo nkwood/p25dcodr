@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 
 public class ChannelMonitor {
 
-  private static final Logger log   = LoggerFactory.getLogger(ChannelMonitor.class);
+  private static final Logger log = LoggerFactory.getLogger(ChannelMonitor.class);
 
   protected final Timer                         timer    = new Timer(true);
   private   final Map<ChannelId, MonitorRecord> channels = new ConcurrentHashMap<>();
