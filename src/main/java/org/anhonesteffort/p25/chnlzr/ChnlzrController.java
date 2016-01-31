@@ -46,7 +46,7 @@ public class ChnlzrController {
     return sourceFuture;
   }
 
-  private class ChnlzrConnectionCallback implements FutureCallback<ChnlzrConnectionHandler> {
+  private static class ChnlzrConnectionCallback implements FutureCallback<ChnlzrConnectionHandler> {
     private final SettableFuture<SamplesSourceHandler> sourceFuture;
     private final ChannelRequest.Reader                request;
 
@@ -76,7 +76,7 @@ public class ChnlzrController {
     }
   }
 
-  private class ChannelRequestCallback implements FutureCallback<ChannelRequestHandler> {
+  private static class ChannelRequestCallback implements FutureCallback<ChannelRequestHandler> {
     private final SettableFuture<SamplesSourceHandler> sourceFuture;
     private final Capabilities.Reader capabilities;
 
