@@ -33,9 +33,9 @@ import java.util.stream.Collectors;
 
 public class ChannelMonitor {
 
-  private   static final Logger log   = LoggerFactory.getLogger(ChannelMonitor.class);
-  protected static final Timer  timer = new Timer(true);
+  private static final Logger log   = LoggerFactory.getLogger(ChannelMonitor.class);
 
+  protected final Timer                         timer    = new Timer(true);
   private   final Map<ChannelId, MonitorRecord> channels = new ConcurrentHashMap<>();
   private   final Object                        txnLock  = new Object();
   protected final P25DcodrConfig                config;
