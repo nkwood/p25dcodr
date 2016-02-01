@@ -1,12 +1,12 @@
 dspPoolSize: 6
 chnlzrHostname: localhost
-chnlzrPort: 8080
+chnlzrPort: 7070
 channelRequestTimeoutMs: 2000
-channelQualifyTimeMs: 8000
+channelQualifyTimeMs: 10000
 samplesQueueSize: 10
 minDataUnitRate: 0.5
-controlChannelRetryCount: 2
-controlChannelRetryDelayMs: 5000
+controlChannelRetryCount: 3
+controlChannelRetryDelayMs: 10000
 
 server:
   type: simple

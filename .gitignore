@@ -1,4 +1,5 @@
 *\.properties*
+!example-chnlzr.properties
 config.yml
 
 target/

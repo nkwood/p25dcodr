@@ -3,30 +3,32 @@
 transform [chnlzr](https://github.com/rhodey/chnlzr-server) sample streams into
 an Amazon Kinesis stream of P25 data units.
 
-## Configure
-Copy `example-config.yml` to `config.yml` and modify as you see fit.
-
-## Build
+## Setup
 ```
+# useradd -m p25dcodr
+# su p25dcodr
+$ cd /home/p25dcodr
+$ git clone https://github.com/rhodey/p25dcodr
+$ cd p25dcodr
 $ mvn package
 ```
 
-## Run
+## Configure
+```
+$ cp example-config.yml config.yml
+$ cp example-chnlzr.properties chnlzr.properties
+```
+
+## Test
 ```
 $ java -jar target/p25dcodr-0.3.0.jar server config.yml
 ```
 
-## API
- + POST QualifyRequest -> /qualify -> ControlChannelQualities
- + GET -> /channels/control -> FollowList
- + POST FollowRequest -> /channels/control
- + DELETE UnfollowRequest -> /channels/control
- + POST GroupCaptureRequest -> /channels/traffic/group
- + POST DirectCaptureRequest -> /channels/traffic/direct
-
-## TODO
- + implement /channels/traffic/direct endpoint
- + health checks, metrics, logging
+## Install
+```
+# cp p25dcodr.conf /etc/init/p25dcodr.conf
+# start p25dcodr
+```
 
 ## License
 
