@@ -91,8 +91,6 @@ public class TrafficChannelCaptureResource {
   @POST
   @Path("/group")
   public void capture(@NotNull @Valid GroupCaptureRequest request, @Suspended AsyncResponse response) {
-    log.info(request.getChannelId() + " requested");
-
     synchronized (txnLock) {
       if (pendingRequests.contains(request.getChannelId()) ||
           channelMonitor.contains(request.getChannelId()))
@@ -101,6 +99,7 @@ public class TrafficChannelCaptureResource {
         return;
       } else {
         pendingRequests.add(request.getChannelId());
+        log.info(request.getChannelId() + " requesting channel");
       }
     }
 

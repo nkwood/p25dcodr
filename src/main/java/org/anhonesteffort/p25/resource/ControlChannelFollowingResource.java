@@ -114,8 +114,6 @@ public class ControlChannelFollowingResource {
   @POST
   @ManagedAsync
   public void follow(@NotNull @Valid FollowRequest request, @Suspended AsyncResponse response) {
-    log.info(request.getChannelId() + " requested");
-
     synchronized (txnLock) {
       if (pendingRequests.contains(request.getChannelId()) ||
           channelMonitor.contains(request.getChannelId()))
@@ -124,6 +122,7 @@ public class ControlChannelFollowingResource {
         return;
       } else {
         pendingRequests.add(request.getChannelId());
+        log.info(request.getChannelId() + " requesting channel");
       }
     }
 
