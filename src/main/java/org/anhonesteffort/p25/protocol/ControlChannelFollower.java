@@ -25,6 +25,7 @@ import org.anhonesteffort.p25.model.GroupCaptureRequest;
 import org.anhonesteffort.p25.protocol.frame.DataUnit;
 import org.anhonesteffort.p25.protocol.frame.TrunkSignalDataUnit;
 import org.anhonesteffort.p25.protocol.frame.tsbk.GroupVoiceChannelGrant;
+import org.anhonesteffort.p25.protocol.frame.tsbk.GroupVoiceChannelGrantUpdateExplicit;
 import org.anhonesteffort.p25.protocol.frame.tsbk.IdUpdateBlock;
 import org.anhonesteffort.p25.protocol.frame.tsbk.TrunkSignalBlock;
 import org.slf4j.Logger;
@@ -72,7 +73,25 @@ public class ControlChannelFollower extends KinesisDataUnitSink implements Invoc
     );
   }
 
+  private GroupChannelId buildChannelId(GroupVoiceChannelGrantUpdateExplicit grant) {
+    return new GroupChannelId(
+        followRequest.getChannelId().getWacn(),
+        followRequest.getChannelId().getSystemId(),
+        followRequest.getChannelId().getRfSubsystemId(),
+        grant.getSourceId(),
+        grant.getGroupId()
+    );
+  }
+
   private GroupCaptureRequest buildCaptureRequest(GroupVoiceChannelGrant grant, Double frequency) {
+    return new GroupCaptureRequest(
+        followRequest.getLatitude(),     followRequest.getLongitude(),
+        followRequest.getPolarization(), frequency,
+        buildChannelId(grant)
+    );
+  }
+
+  private GroupCaptureRequest buildCaptureRequest(GroupVoiceChannelGrantUpdateExplicit grant, Double frequency) {
     return new GroupCaptureRequest(
         followRequest.getLatitude(),     followRequest.getLongitude(),
         followRequest.getPolarization(), frequency,
@@ -82,6 +101,17 @@ public class ControlChannelFollower extends KinesisDataUnitSink implements Invoc
 
   private void followGroupChannelGrant(GroupVoiceChannelGrant grant) {
     Integer                 channelId = grant.getChannelId();
+    Optional<IdUpdateBlock> idBlock   = channelIdMap.getBlockForId(channelId);
+
+    if (!idBlock.isPresent()) {
+      log.debug(followRequest.getChannelId() + " unable to process voice channel grant, id map missing " + channelId);
+    } else {
+      sendRequest(buildCaptureRequest(grant, grant.getDownlinkFreq(idBlock.get())));
+    }
+  }
+
+  private void followGroupChannelGrantExplicit(GroupVoiceChannelGrantUpdateExplicit grant) {
+    Integer                 channelId = grant.getTransmitId();
     Optional<IdUpdateBlock> idBlock   = channelIdMap.getBlockForId(channelId);
 
     if (!idBlock.isPresent()) {
@@ -106,6 +136,10 @@ public class ControlChannelFollower extends KinesisDataUnitSink implements Invoc
           switch (block.getOpCode()) {
             case TrunkSignalBlock.GROUP_VOICE_CHAN_GRANT:
               followGroupChannelGrant((GroupVoiceChannelGrant) block);
+              break;
+
+            case TrunkSignalBlock.GROUP_VOICE_CHAN_GRANT_UPDATE_EXPLICIT:
+              followGroupChannelGrantExplicit((GroupVoiceChannelGrantUpdateExplicit) block);
               break;
           }
         });
