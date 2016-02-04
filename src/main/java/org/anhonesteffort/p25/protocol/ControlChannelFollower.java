@@ -18,6 +18,7 @@
 package org.anhonesteffort.p25.protocol;
 
 import org.anhonesteffort.kinesis.producer.KinesisRecordProducer;
+import org.anhonesteffort.p25.P25Config;
 import org.anhonesteffort.p25.kinesis.KinesisDataUnitSink;
 import org.anhonesteffort.p25.model.GroupChannelId;
 import org.anhonesteffort.p25.model.FollowRequest;
@@ -63,23 +64,25 @@ public class ControlChannelFollower extends KinesisDataUnitSink implements Invoc
     );
   }
 
-  private GroupChannelId buildChannelId(GroupVoiceChannelGrant grant) {
+  private GroupChannelId buildChannelId(GroupVoiceChannelGrant grant, Double frequency) {
     return new GroupChannelId(
         followRequest.getChannelId().getWacn(),
         followRequest.getChannelId().getSystemId(),
         followRequest.getChannelId().getRfSubsystemId(),
         grant.getSourceId(),
-        grant.getGroupId()
+        grant.getGroupId(),
+        frequency
     );
   }
 
-  private GroupChannelId buildChannelId(GroupVoiceChannelGrantUpdateExplicit grant) {
+  private GroupChannelId buildChannelId(GroupVoiceChannelGrantUpdateExplicit grant, Double frequency) {
     return new GroupChannelId(
         followRequest.getChannelId().getWacn(),
         followRequest.getChannelId().getSystemId(),
         followRequest.getChannelId().getRfSubsystemId(),
-        grant.getSourceId(),
-        grant.getGroupId()
+        P25Config.UNIT_ID_NONE, // D; f12 D;
+        grant.getGroupId(),
+        frequency
     );
   }
 
@@ -87,7 +90,7 @@ public class ControlChannelFollower extends KinesisDataUnitSink implements Invoc
     return new GroupCaptureRequest(
         followRequest.getLatitude(),     followRequest.getLongitude(),
         followRequest.getPolarization(), frequency,
-        buildChannelId(grant)
+        buildChannelId(grant, frequency)
     );
   }
 
@@ -95,7 +98,7 @@ public class ControlChannelFollower extends KinesisDataUnitSink implements Invoc
     return new GroupCaptureRequest(
         followRequest.getLatitude(),     followRequest.getLongitude(),
         followRequest.getPolarization(), frequency,
-        buildChannelId(grant)
+        buildChannelId(grant, frequency)
     );
   }
 

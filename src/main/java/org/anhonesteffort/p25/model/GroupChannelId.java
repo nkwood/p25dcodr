@@ -18,20 +18,36 @@
 package org.anhonesteffort.p25.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.anhonesteffort.p25.P25Config;
 
 import javax.validation.constraints.NotNull;
 
-public class GroupChannelId extends TrafficChannelId {
+public class GroupChannelId extends ChannelId {
 
+  /*
+  notice:
+    we have to keep track of frequency here because sourceId
+    is not always immediately known, such is the case of 'group
+    voice channel update' and 'group voice channel update
+    explicit'. frequency is used to evaluate equality in the
+    case of unknown sourceId.
+   */
+
+  @NotNull private Integer sourceId;
   @NotNull private Integer groupId;
+  @NotNull private Double  frequency;
 
   public GroupChannelId() { }
 
   public GroupChannelId(
-      Integer wacn, Integer systemId, Integer rfSubsystemId, Integer sourceId, Integer groupId
+      Integer wacn, Integer systemId, Integer rfSubsystemId,
+      Integer sourceId, Integer groupId, Double frequency
   ) {
-    super(wacn, systemId, rfSubsystemId, sourceId);
-    this.groupId = groupId;
+    super(wacn, systemId, rfSubsystemId);
+
+    this.sourceId  = sourceId;
+    this.groupId   = groupId;
+    this.frequency = frequency;
   }
 
   @Override
@@ -40,13 +56,23 @@ public class GroupChannelId extends TrafficChannelId {
   }
 
   @JsonProperty
+  public Integer getSourceId() {
+    return sourceId;
+  }
+
+  @JsonProperty
   public Integer getGroupId() {
     return groupId;
   }
 
+  @JsonProperty
+  public Double getFrequency() {
+    return frequency;
+  }
+
   @Override
   public String toString() {
-    return super.toString() + ":" + groupId;
+    return super.toString() + ":" + sourceId + ":" + groupId;
   }
 
   @Override
@@ -56,12 +82,25 @@ public class GroupChannelId extends TrafficChannelId {
     if (!super.equals(o))                        return false;
 
     GroupChannelId other = (GroupChannelId) o;
-    return groupId.equals(other.groupId);
+
+    if (!groupId.equals(other.groupId)) {
+      return false;
+    }
+
+    if (sourceId.equals(other.sourceId)) {
+      return true;
+    } else if (sourceId == P25Config.UNIT_ID_NONE) {
+      return frequency.equals(other.frequency);
+    } else if (other.sourceId == P25Config.UNIT_ID_NONE) {
+      return frequency.equals(other.frequency);
+    } else {
+      return false;
+    }
   }
 
   @Override
   public int hashCode() {
-    return (super.hashCode() * 31) + groupId.hashCode();
+    return (((((super.hashCode() * 31) + sourceId) * 31) + groupId.hashCode()) * 31) + frequency.hashCode();
   }
 
 }

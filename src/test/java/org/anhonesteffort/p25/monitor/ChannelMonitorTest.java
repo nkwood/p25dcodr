@@ -41,9 +41,9 @@ public class ChannelMonitorTest {
 
     Mockito.when(COUNTER.getDataUnitCount()).thenReturn(1337);
 
-    final GroupChannelId id      = new GroupChannelId(10, 20, 30, 40, 50);
-    final GroupChannelId idCopy  = new GroupChannelId(10, 20, 30, 40, 50);
-    final GroupChannelId notId   = new GroupChannelId(10, 20, 30, 40, 51);
+    final GroupChannelId id      = new GroupChannelId(10, 20, 30, 40, 50, 60d);
+    final GroupChannelId idCopy  = new GroupChannelId(10, 20, 30, 40, 50, 60d);
+    final GroupChannelId notId   = new GroupChannelId(10, 20, 30, 40, 51, 60d);
     final Identifiable   capture = new GroupCaptureRequest(10d, 20d, 0, 1337d, id);
 
     assert MONITOR.monitor(capture, FUTURE, COUNTER);
@@ -59,7 +59,7 @@ public class ChannelMonitorTest {
 
     Mockito.when(COUNTER.getDataUnitCount()).thenReturn(1337);
 
-    final GroupChannelId id      = new GroupChannelId(10, 20, 30, 40, 50);
+    final GroupChannelId id      = new GroupChannelId(10, 20, 30, 40, 50, 60d);
     final Identifiable   capture = new GroupCaptureRequest(10d, 20d, 0, 1337d, id);
 
     assert MONITOR.monitor(capture, FUTURE, COUNTER);
@@ -75,7 +75,7 @@ public class ChannelMonitorTest {
 
     Mockito.when(COUNTER.getDataUnitCount()).thenReturn(1337);
 
-    final GroupChannelId id      = new GroupChannelId(10, 20, 30, 40, 50);
+    final GroupChannelId id      = new GroupChannelId(10, 20, 30, 40, 50, 60d);
     final Identifiable   capture = new GroupCaptureRequest(10d, 20d, 0, 1337d, id);
 
     assert MONITOR.monitor(capture, FUTURE, COUNTER);
@@ -96,7 +96,7 @@ public class ChannelMonitorTest {
 
     Mockito.when(COUNTER.getDataUnitCount()).thenReturn(1337);
 
-    final GroupChannelId id      = new GroupChannelId(10, 20, 30, 40, 50);
+    final GroupChannelId id      = new GroupChannelId(10, 20, 30, 40, 50, 60d);
     final Identifiable   capture = new GroupCaptureRequest(10d, 20d, 0, 1337d, id);
 
     assert MONITOR.monitor(capture, FUTURE, COUNTER);
@@ -116,7 +116,7 @@ public class ChannelMonitorTest {
 
     Mockito.when(COUNTER.getDataUnitCount()).thenReturn(0);
 
-    final GroupChannelId id      = new GroupChannelId(10, 20, 30, 40, 50);
+    final GroupChannelId id      = new GroupChannelId(10, 20, 30, 40, 50, 60d);
     final Identifiable   capture = new GroupCaptureRequest(10d, 20d, 0, 1337d, id);
 
     assert MONITOR.monitor(capture, FUTURE, COUNTER);
