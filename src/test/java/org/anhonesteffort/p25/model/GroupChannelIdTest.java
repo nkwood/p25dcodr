@@ -17,7 +17,6 @@
 
 package org.anhonesteffort.p25.model;
 
-import org.anhonesteffort.p25.P25Config;
 import org.junit.Test;
 
 public class GroupChannelIdTest {
@@ -40,6 +39,7 @@ public class GroupChannelIdTest {
     final GroupChannelId ID5 = new GroupChannelId(1, 2, 4, 4, 5, 6d);
     final GroupChannelId ID6 = new GroupChannelId(1, 2, 3, 5, 5, 6d);
     final GroupChannelId ID7 = new GroupChannelId(1, 2, 3, 4, 6, 6d);
+    final GroupChannelId ID8 = new GroupChannelId(1, 2, 3, 4, 5, 7d);
 
     assert ID1.equals(ID2);
     assert ID1.hashCode() == ID2.hashCode();
@@ -53,37 +53,30 @@ public class GroupChannelIdTest {
     assert !ID1.equals(ID5);
     assert ID1.hashCode() != ID5.hashCode();
 
-    assert !ID1.equals(ID6);
-    assert ID1.hashCode() != ID6.hashCode();
+    assert ID1.equals(ID6);
+    assert ID1.hashCode() == ID6.hashCode();
 
     assert !ID1.equals(ID7);
     assert ID1.hashCode() != ID7.hashCode();
+
+    assert !ID1.equals(ID8);
+    assert ID1.hashCode() != ID8.hashCode();
   }
 
   @Test
-  public void testFrequencyIgnoredWhenSourceIdEqual() {
+  public void testSourceIdIgnored() {
     final GroupChannelId ID1 = new GroupChannelId(1, 2, 3, 4, 5, 6d);
-    final GroupChannelId ID2 = new GroupChannelId(1, 2, 3, 4, 5, 7d);
-    final GroupChannelId ID3 = new GroupChannelId(1, 2, 3, 4, P25Config.UNIT_ID_NONE, 8d);
-    final GroupChannelId ID4 = new GroupChannelId(1, 2, 3, 4, P25Config.UNIT_ID_NONE, 9d);
+    final GroupChannelId ID2 = new GroupChannelId(1, 2, 3, 5, 5, 6d);
+    final GroupChannelId ID3 = new GroupChannelId(1, 2, 3, 4, 5, 7d);
+    final GroupChannelId ID4 = new GroupChannelId(1, 2, 3, 4, 5, 8d);
 
     assert ID1.equals(ID2);
     assert ID2.equals(ID1);
-    assert ID3.equals(ID4);
-    assert ID4.equals(ID3);
-  }
+    assert ID1.hashCode() == ID2.hashCode();
 
-  @Test
-  public void testFrequencyUsedWhenSourceIdUnkown() {
-    final GroupChannelId ID1 = new GroupChannelId(1, 2, 3, 4, 5, 6d);
-    final GroupChannelId ID2 = new GroupChannelId(1, 2, 3, P25Config.UNIT_ID_NONE, 5, 6d);
-    final GroupChannelId ID3 = new GroupChannelId(1, 2, 3, P25Config.UNIT_ID_NONE, 5, 7d);
-
-    assert ID1.equals(ID2);
-    assert ID2.equals(ID1);
-
-    assert !ID1.equals(ID3);
-    assert !ID3.equals(ID1);
+    assert !ID3.equals(ID4);
+    assert !ID4.equals(ID3);
+    assert ID3.hashCode() != ID4.hashCode();
   }
 
 }

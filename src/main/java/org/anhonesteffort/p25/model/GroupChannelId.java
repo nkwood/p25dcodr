@@ -18,7 +18,6 @@
 package org.anhonesteffort.p25.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.anhonesteffort.p25.P25Config;
 
 import javax.validation.constraints.NotNull;
 
@@ -29,8 +28,8 @@ public class GroupChannelId extends ChannelId {
     we have to keep track of frequency here because sourceId
     is not always immediately known, such is the case of 'group
     voice channel update' and 'group voice channel update
-    explicit'. frequency is used to evaluate equality in the
-    case of unknown sourceId.
+    explicit'. frequency is used to evaluate equality instead
+    of sourceId.
    */
 
   @NotNull private Integer sourceId;
@@ -72,7 +71,7 @@ public class GroupChannelId extends ChannelId {
 
   @Override
   public String toString() {
-    return super.toString() + ":" + sourceId + ":" + groupId;
+    return super.toString() + ":" + sourceId + ":" + groupId + ":" + frequency;
   }
 
   @Override
@@ -82,25 +81,12 @@ public class GroupChannelId extends ChannelId {
     if (!super.equals(o))                        return false;
 
     GroupChannelId other = (GroupChannelId) o;
-
-    if (!groupId.equals(other.groupId)) {
-      return false;
-    }
-
-    if (sourceId.equals(other.sourceId)) {
-      return true;
-    } else if (sourceId == P25Config.UNIT_ID_NONE) {
-      return frequency.equals(other.frequency);
-    } else if (other.sourceId == P25Config.UNIT_ID_NONE) {
-      return frequency.equals(other.frequency);
-    } else {
-      return false;
-    }
+    return groupId.equals(other.groupId) && frequency.equals(other.frequency);
   }
 
   @Override
   public int hashCode() {
-    return (((((super.hashCode() * 31) + sourceId) * 31) + groupId.hashCode()) * 31) + frequency.hashCode();
+    return (((super.hashCode() * 31) + groupId.hashCode()) * 31) + frequency.hashCode();
   }
 
 }
