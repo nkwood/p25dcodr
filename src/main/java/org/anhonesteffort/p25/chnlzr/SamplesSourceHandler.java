@@ -26,7 +26,7 @@ import org.anhonesteffort.dsp.sample.DynamicSink;
 import org.anhonesteffort.dsp.sample.Samples;
 
 import java.nio.ByteBuffer;
-import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.anhonesteffort.chnlzr.Proto.BaseMessage;
 import static org.anhonesteffort.chnlzr.Proto.Capabilities;
@@ -39,7 +39,7 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
   private final Capabilities.Reader   capabilities;
   private       ChannelState.Reader   state;
 
-  private Optional<DynamicSink<Samples>> sink = Optional.empty();
+  private AtomicReference<DynamicSink<Samples>> sink = new AtomicReference<>(null);
 
   public SamplesSourceHandler(ChannelHandlerContext context,
                               Capabilities.Reader   capabilities,
@@ -71,10 +71,11 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
 
   public void setSink(DynamicSink<Samples> sink) {
     sink.onSourceStateChange(state.getSampleRate(), state.getCenterFrequency());
-    this.sink = Optional.of(sink);
+    this.sink.set(sink);
   }
 
   public void close() {
+    sink.set(null);
     context.close();
   }
 
@@ -82,20 +83,21 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
   public void channelRead(ChannelHandlerContext context, Object msg)
       throws ProtocolErrorException, IllegalStateException
   {
-    BaseMessage.Reader message = (BaseMessage.Reader) msg;
+    BaseMessage.Reader   message = (BaseMessage.Reader) msg;
+    DynamicSink<Samples> sink    = this.sink.get();
 
     switch (message.getType()) {
       case CHANNEL_STATE:
         state = message.getChannelState();
-        if (sink.isPresent()) {
-          sink.get().onSourceStateChange(state.getSampleRate(), state.getCenterFrequency());
+        if (sink != null) {
+          sink.onSourceStateChange(state.getSampleRate(), state.getCenterFrequency());
         }
         break;
 
       case SAMPLES:
-        if (sink.isPresent()) {
+        if (sink != null) {
           ByteBuffer samples = message.getSamples().getSamples().asByteBuffer();
-          sink.get().consume(new Samples(samples.asFloatBuffer()));
+          sink.consume(new Samples(samples.asFloatBuffer()));
         }
         break;
 
@@ -129,7 +131,7 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
 
   @Override
   public void channelInactive(ChannelHandlerContext context) {
-    sink = Optional.empty();
+    sink.set(null);
   }
 
 }

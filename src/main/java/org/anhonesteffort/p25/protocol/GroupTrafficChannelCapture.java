@@ -17,18 +17,50 @@
 
 package org.anhonesteffort.p25.protocol;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import org.anhonesteffort.kinesis.producer.KinesisRecordProducer;
+import org.anhonesteffort.p25.chnlzr.SamplesSourceHandler;
 import org.anhonesteffort.p25.kinesis.KinesisDataUnitSink;
 import org.anhonesteffort.p25.model.ChannelId;
+import org.anhonesteffort.p25.protocol.frame.DataUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GroupTrafficChannelCapture extends KinesisDataUnitSink {
+
+  private static final Logger log = LoggerFactory.getLogger(GroupTrafficChannelCapture.class);
+
+  private final SamplesSourceHandler source;
+  private final ListenableFuture future;
+  private final ChannelId channelId;
 
   public GroupTrafficChannelCapture(KinesisRecordProducer  sender,
                                     ChannelId              channelId,
                                     Double                 srcLatitude,
-                                    Double                 srcLongitude)
+                                    Double                 srcLongitude,
+                                    SamplesSourceHandler   source,
+                                    ListenableFuture       future)
   {
     super(sender, channelId, srcLatitude, srcLongitude);
+    this.source    = source;
+    this.future    = future;
+    this.channelId = channelId;
+  }
+
+  @Override
+  public void consume(DataUnit element) {
+    super.consume(element);
+    if (!element.isIntact())
+      return;
+
+    switch (element.getNid().getDuid().getId()) {
+      case Duid.ID_TERMINATOR_W_LINK:
+      case Duid.ID_TERMINATOR_WO_LINK:
+        log.info(channelId + " terminated by protocol, canceling");
+        source.close(); // todo: why doesn't cancel's callback handle this?!
+        future.cancel(true);
+        break;
+    }
   }
 
 }
