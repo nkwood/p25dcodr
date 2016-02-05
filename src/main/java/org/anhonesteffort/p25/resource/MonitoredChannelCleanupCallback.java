@@ -62,15 +62,13 @@ class MonitoredChannelCleanupCallback implements FutureCallback<Void>, ChannelFu
   }
 
   @Override
-  public void operationComplete(ChannelFuture sourceClosedFuture) {
+  public void operationComplete(ChannelFuture sourceFuture) {
     if (cleanupComplete.compareAndSet(false, true)) {
-      if (sourceClosedFuture.isSuccess()) {
-        log.warn(channelId + " chnlzr connection closed unexpectedly");
-      } else if (sourceClosedFuture.cause() instanceof ProtocolErrorException) {
-        ProtocolErrorException error = (ProtocolErrorException) sourceClosedFuture.cause();
+      if (!sourceFuture.isSuccess() && sourceFuture.cause() instanceof ProtocolErrorException) {
+        ProtocolErrorException error = (ProtocolErrorException) sourceFuture.cause();
         log.warn(channelId + " chnlzr closed connection with error: " + error.getCode());
-      } else {
-        log.error(channelId + " unexpected netty error", sourceClosedFuture.cause());
+      } else if (!sourceFuture.isSuccess()) {
+        log.error(channelId + " unexpected netty error", sourceFuture.cause());
       }
     }
   }
