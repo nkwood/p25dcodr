@@ -92,7 +92,7 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, Fut
 
   private P25ChannelId.Reader translate(GroupChannelId id) {
     return protocol.groupId(
-        id.getWacn(), id.getSystemId(), id.getRfSubsystemId(), id.getSourceId(), id.getGroupId()
+        id.getWacn(), id.getSystemId(), id.getRfSubsystemId(), id.getSourceId(), id.getGroupId(), id.getFrequency()
     );
   }
 
