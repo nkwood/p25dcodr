@@ -18,8 +18,6 @@
 package org.anhonesteffort.p25.resource;
 
 import com.google.common.util.concurrent.FutureCallback;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
 import org.anhonesteffort.p25.chnlzr.SamplesSourceHandler;
 import org.anhonesteffort.p25.model.ChannelId;
@@ -30,7 +28,7 @@ import javax.annotation.Nonnull;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class MonitoredChannelCleanupCallback implements FutureCallback<Void>, ChannelFutureListener {
+class MonitoredChannelCleanupCallback implements FutureCallback<Void> {
 
   private static final Logger log = LoggerFactory.getLogger(MonitoredChannelCleanupCallback.class);
 
@@ -55,20 +53,12 @@ class MonitoredChannelCleanupCallback implements FutureCallback<Void>, ChannelFu
   public void onFailure(@Nonnull Throwable cause) {
     if (cleanupComplete.compareAndSet(false, true)) {
       samplesSource.close();
-      if (!(cause instanceof CancellationException)) {
-        log.error(channelId + " unexpected dsp error while decoding channel", cause);
-      }
-    }
-  }
 
-  @Override
-  public void operationComplete(ChannelFuture sourceFuture) {
-    if (cleanupComplete.compareAndSet(false, true)) {
-      if (!sourceFuture.isSuccess() && sourceFuture.cause() instanceof ProtocolErrorException) {
-        ProtocolErrorException error = (ProtocolErrorException) sourceFuture.cause();
+      if (cause instanceof ProtocolErrorException) {
+        ProtocolErrorException error = (ProtocolErrorException) cause;
         log.warn(channelId + " chnlzr closed connection with error: " + error.getCode());
-      } else if (!sourceFuture.isSuccess()) {
-        log.error(channelId + " unexpected netty error", sourceFuture.cause());
+      } else if (!(cause instanceof CancellationException)) {
+        log.error(channelId + " unexpected error while decoding channel", cause);
       }
     }
   }

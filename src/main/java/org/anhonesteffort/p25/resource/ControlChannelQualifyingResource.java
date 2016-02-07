@@ -21,8 +21,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import org.anhonesteffort.chnlzr.CapnpUtil;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
 import org.anhonesteffort.p25.P25Channel;
@@ -124,16 +122,14 @@ public class ControlChannelQualifyingResource {
       samplesSource.setSink(channel);
 
       Futures.addCallback(channelFuture, channelCallback);
-      samplesSource.getCloseFuture().addListener(channelCallback);
+      Futures.addCallback(samplesSource.getCloseFuture(), channelCallback);
 
       response.setTimeout(config.getChannelQualifyTimeMs(), TimeUnit.MILLISECONDS);
       response.setTimeoutHandler(asyncResponse -> channelFuture.cancel(true));
     }
   }
 
-  private class ChannelQualifiedCallback
-      implements FutureCallback<Void>, ChannelFutureListener
-  {
+  private class ChannelQualifiedCallback implements FutureCallback<Void> {
     private final ControlChannelQualifier qualifier;
     private final AsyncResponse           response;
     private final SamplesSourceHandler    samplesSource;
@@ -166,6 +162,7 @@ public class ControlChannelQualifyingResource {
     public void onSuccess(Void nothing) {
       if (responseComplete.compareAndSet(false, true)) {
         samplesSource.close();
+        channelFuture.cancel(true);
         onQualifyComplete();
       }
     }
@@ -174,30 +171,16 @@ public class ControlChannelQualifyingResource {
     public void onFailure(@Nonnull Throwable throwable) {
       if (responseComplete.compareAndSet(false, true)) {
         samplesSource.close();
+        channelFuture.cancel(true);
 
         if (throwable instanceof CancellationException) {
           onQualifyComplete();
-        } else {
-          log.error("unable to qualify channel, unexpected dsp error", throwable);
-          response.resume(Response.status(500).build());
-        }
-      }
-    }
-
-    @Override
-    public void operationComplete(ChannelFuture sourceClosedFuture) {
-      if (responseComplete.compareAndSet(false, true)) {
-        channelFuture.cancel(true);
-
-        if (sourceClosedFuture.isSuccess()) {
-          log.warn("unable to qualify channel, chnlzr connection closed unexpectedly");
-          response.resume(Response.status(503).build());
-        } else if (sourceClosedFuture.cause() instanceof ProtocolErrorException) {
-          ProtocolErrorException error = (ProtocolErrorException) sourceClosedFuture.cause();
+        } else if (throwable instanceof ProtocolErrorException) {
+          ProtocolErrorException error = (ProtocolErrorException) throwable;
           log.warn("unable to qualify channel, chnlzr closed connection with error: " + error.getCode());
           response.resume(Response.status(503).build());
-        } else {
-          log.error("unable to qualify channel, unexpected netty error", sourceClosedFuture.cause());
+        }  else {
+          log.error("unable to qualify channel, unexpected error", throwable);
           response.resume(Response.status(500).build());
         }
       }

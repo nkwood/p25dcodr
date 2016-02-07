@@ -17,14 +17,17 @@
 
 package org.anhonesteffort.p25.chnlzr;
 
-import io.netty.channel.ChannelFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
 import org.anhonesteffort.dsp.sample.DynamicSink;
 import org.anhonesteffort.dsp.sample.Samples;
 
+import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -34,10 +37,9 @@ import static org.anhonesteffort.chnlzr.Proto.ChannelState;
 
 public class SamplesSourceHandler extends ChannelHandlerAdapter {
 
-  private final ChannelHandlerContext context;
-  private final ChannelPromise        closePromise;
-  private final Capabilities.Reader   capabilities;
-  private       ChannelState.Reader   state;
+  private final SettableFuture<Void> closePromise;
+  private final Capabilities.Reader  capabilities;
+  private       ChannelState.Reader  state;
 
   private AtomicReference<DynamicSink<Samples>> sink = new AtomicReference<>(null);
 
@@ -45,27 +47,36 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
                               Capabilities.Reader   capabilities,
                               ChannelState.Reader   state)
   {
-    this.context      = context;
     this.capabilities = capabilities;
     this.state        = state;
-    closePromise      = context.newPromise();
+    closePromise      = SettableFuture.create();
 
     context.channel().closeFuture().addListener(close -> {
-      if (close.isSuccess() && !closePromise.isDone()) {
-        closePromise.setSuccess();
-      } else if (!closePromise.isDone()) {
-        closePromise.setFailure(close.cause());
+      if (close.isSuccess()) {
+        closePromise.set(null);
+      } else {
+        closePromise.setException(close.cause());
       }
     });
 
-    closePromise.addListener(close -> context.close());
+    Futures.addCallback(closePromise, new FutureCallback<Void>() {
+      @Override
+      public void onSuccess(Void aVoid) {
+        context.close();
+      }
+
+      @Override
+      public void onFailure(@Nonnull Throwable error) {
+        context.close();
+      }
+    });
   }
 
   public Capabilities.Reader getCapabilities() {
     return capabilities;
   }
 
-  public ChannelFuture getCloseFuture() {
+  public ListenableFuture<Void> getCloseFuture() {
     return closePromise;
   }
 
@@ -76,7 +87,7 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
 
   public void close() {
     sink.set(null);
-    context.close();
+    closePromise.set(null);
   }
 
   @Override
@@ -103,18 +114,14 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
 
       case ERROR:
         ProtocolErrorException error = new ProtocolErrorException("chnlzr sent error while streaming", message.getError().getCode());
-        if (!closePromise.isDone()) {
-          closePromise.setFailure(error);
-        } else {
+        if (!closePromise.setException(error)) {
           throw error;
         }
         break;
 
       default:
         IllegalStateException ex = new IllegalStateException("chnlzr sent unexpected while streaming " + message.getType().name());
-        if (!closePromise.isDone()) {
-          closePromise.setFailure(ex);
-        } else {
+        if (!closePromise.setException(ex)) {
           throw ex;
         }
         break;
@@ -124,9 +131,7 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
   @Override
   public void exceptionCaught(ChannelHandlerContext context, Throwable cause) {
     context.close();
-    if (!closePromise.isDone()) {
-      closePromise.setFailure(cause);
-    }
+    closePromise.setException(cause);
   }
 
   @Override

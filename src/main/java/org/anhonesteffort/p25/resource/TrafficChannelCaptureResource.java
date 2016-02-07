@@ -132,8 +132,8 @@ public class TrafficChannelCaptureResource {
       KinesisRecordProducer      sender        = senderFactory.create(request.getChannelId());
       Double                     srcLatitude   = samplesSource.getCapabilities().getLatitude();
       Double                     srcLongitude  = samplesSource.getCapabilities().getLongitude();
+      GroupTrafficChannelCapture capture       = new GroupTrafficChannelCapture(sender, request.getChannelId(), srcLatitude, srcLongitude);
       ListenableFuture<Void>     channelFuture = dspPool.submit(channel);
-      GroupTrafficChannelCapture capture       = new GroupTrafficChannelCapture(sender, request.getChannelId(), srcLatitude, srcLongitude, samplesSource, channelFuture);
 
       if (!channelMonitor.monitor(request, channelFuture, capture)) {
         pendingRequests.remove(channelId);
@@ -149,7 +149,7 @@ public class TrafficChannelCaptureResource {
 
         MonitoredChannelCleanupCallback callback = new MonitoredChannelCleanupCallback(samplesSource, channelId);
         Futures.addCallback(channelFuture, callback);
-        samplesSource.getCloseFuture().addListener(callback);
+        Futures.addCallback(samplesSource.getCloseFuture(), callback);
       }
     }
 

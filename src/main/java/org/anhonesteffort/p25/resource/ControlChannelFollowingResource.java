@@ -177,7 +177,7 @@ public class ControlChannelFollowingResource {
 
         MonitoredChannelCleanupCallback callback = new MonitoredChannelCleanupCallback(samplesSource, channelId);
         Futures.addCallback(channelFuture, callback);
-        samplesSource.getCloseFuture().addListener(callback);
+        Futures.addCallback(samplesSource.getCloseFuture(), callback);
       }
     }
 
