@@ -50,7 +50,7 @@ public class ChannelMonitor {
     P25DcodrMetrics.getInstance().registerChannelMonitor(new Gauge<Integer>() {
       @Override
       public Integer getValue() {
-        return channels.keySet().size();
+        return channels.size();
       }
     });
   }
