@@ -17,6 +17,7 @@
 
 package org.anhonesteffort.p25;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import io.dropwizard.Application;
@@ -35,6 +36,7 @@ import org.anhonesteffort.p25.chnlzr.ChnlzrController;
 import org.anhonesteffort.p25.chnlzr.HostId;
 import org.anhonesteffort.p25.health.DumbCheck;
 import org.anhonesteffort.p25.kinesis.KinesisRecordProducerFactory;
+import org.anhonesteffort.p25.metric.P25DcodrMetrics;
 import org.anhonesteffort.p25.monitor.ChannelMonitor;
 import org.anhonesteffort.p25.monitor.RetryingControlChannelMonitor;
 import org.anhonesteffort.p25.resource.ControlChannelFollowingResource;
@@ -81,6 +83,8 @@ public class P25DcodrApplication extends Application<P25DcodrConfig> {
 
   @Override
   public void run(P25DcodrConfig config, Environment environment) throws Exception {
+    P25DcodrMetrics.init(config.getCloudWatch(), new MetricRegistry());
+
     EventLoopGroup           nettyPool   = new NioEventLoopGroup();
     ListeningExecutorService dspPool     = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(config.getDspPoolSize()));
     ExecutorService          kinesisPool = Executors.newFixedThreadPool(config.getKinesis().getSenderPoolSize());

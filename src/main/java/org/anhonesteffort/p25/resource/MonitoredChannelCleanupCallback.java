@@ -20,6 +20,7 @@ package org.anhonesteffort.p25.resource;
 import com.google.common.util.concurrent.FutureCallback;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
 import org.anhonesteffort.p25.chnlzr.SamplesSourceHandler;
+import org.anhonesteffort.p25.metric.P25DcodrMetrics;
 import org.anhonesteffort.p25.model.ChannelId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,7 @@ class MonitoredChannelCleanupCallback implements FutureCallback<Void> {
 
       if (cause instanceof ProtocolErrorException) {
         ProtocolErrorException error = (ProtocolErrorException) cause;
+        P25DcodrMetrics.getInstance().chnlzrStreamClosed(error.getCode());
         log.warn(channelId + " chnlzr closed connection with error: " + error.getCode());
       } else if (!(cause instanceof CancellationException)) {
         log.error(channelId + " unexpected error while decoding channel", cause);

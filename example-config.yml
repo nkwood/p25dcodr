@@ -29,6 +29,12 @@ kinesis:
   controlDelayMaxMs: 30000
   trafficDelayMaxMs: 30000
 
+cloudWatch:
+  accessKeyId: aaabbb111222
+  secretKey: cccddd333444
+  instanceId: suchInstance
+  reportingIntervalMinutes: 1
+
 logging:
   level: INFO
   appenders:

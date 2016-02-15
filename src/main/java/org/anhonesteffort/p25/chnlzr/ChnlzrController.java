@@ -21,6 +21,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+import org.anhonesteffort.p25.metric.P25DcodrMetrics;
 
 import javax.annotation.Nonnull;
 
@@ -38,6 +39,8 @@ public class ChnlzrController {
   }
 
   public ListenableFuture<SamplesSourceHandler> createSourceFor(ChannelRequest.Reader request) {
+    P25DcodrMetrics.getInstance().chnlzrRequest(request.getCenterFrequency());
+
     ListenableFuture<ChnlzrConnectionHandler> connectFuture = factory.create(chnlzrHost);
     SettableFuture<SamplesSourceHandler>      sourceFuture  = SettableFuture.create();
 
@@ -59,6 +62,8 @@ public class ChnlzrController {
 
     @Override
     public void onSuccess(ChnlzrConnectionHandler connection) {
+      P25DcodrMetrics.getInstance().chnlzrConnectSuccess();
+
       if (sourceFuture.isCancelled()) {
         connection.getContext().close();
       } else {
@@ -72,6 +77,7 @@ public class ChnlzrController {
 
     @Override
     public void onFailure(@Nonnull Throwable throwable) {
+      P25DcodrMetrics.getInstance().chnlzrConnectFailure();
       sourceFuture.setException(throwable);
     }
   }
@@ -89,6 +95,8 @@ public class ChnlzrController {
 
     @Override
     public void onSuccess(ChannelRequestHandler requester) {
+      P25DcodrMetrics.getInstance().chnlzrRequestSuccess();
+
       SamplesSourceHandler samplesSource = new SamplesSourceHandler(requester.getContext(), capabilities, requester.getState());
       requester.getContext().pipeline().replace(requester, "streamer", samplesSource);
 
@@ -99,6 +107,7 @@ public class ChnlzrController {
 
     @Override
     public void onFailure(@Nonnull Throwable throwable) {
+      P25DcodrMetrics.getInstance().chnlzrRequestFailure();
       sourceFuture.setException(throwable);
     }
   }

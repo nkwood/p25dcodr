@@ -17,9 +17,12 @@
 
 package org.anhonesteffort.p25.monitor;
 
+import org.anhonesteffort.p25.metric.MockMetrics;
+import org.anhonesteffort.p25.metric.P25DcodrMetrics;
 import org.anhonesteffort.p25.model.GroupCaptureRequest;
 import org.anhonesteffort.p25.model.GroupChannelId;
 import org.anhonesteffort.p25.P25DcodrConfig;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -31,6 +34,12 @@ public class ChannelMonitorTest {
     P25DcodrConfig config = Mockito.mock(P25DcodrConfig.class);
     Mockito.when(config.getMinDataUnitRate()).thenReturn(1d);
     return config;
+  }
+
+  @Before
+  public void mockMetrics() {
+    final P25DcodrMetrics mock = Mockito.mock(P25DcodrMetrics.class);
+    MockMetrics.mockWith(mock);
   }
 
   @Test

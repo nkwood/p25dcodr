@@ -20,6 +20,7 @@ package org.anhonesteffort.p25.resource;
 import com.google.common.util.concurrent.FutureCallback;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
 import org.anhonesteffort.p25.chnlzr.SamplesSourceHandler;
+import org.anhonesteffort.p25.metric.P25DcodrMetrics;
 import org.anhonesteffort.p25.model.ChannelId;
 import org.slf4j.Logger;
 
@@ -44,6 +45,7 @@ public abstract class AbstractSamplesSourceCallback implements FutureCallback<Sa
   public void onFailure(@Nonnull Throwable throwable) {
     if (throwable instanceof ProtocolErrorException) {
       ProtocolErrorException error = (ProtocolErrorException) throwable;
+      P25DcodrMetrics.getInstance().chnlzrRequestDenied(error.getCode());
       log().warn(channelId + " channel request not granted: " + error.getCode());
       response.resume(Response.status(503).build());
     } else if (throwable instanceof CancellationException) {

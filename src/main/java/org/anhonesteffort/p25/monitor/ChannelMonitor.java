@@ -17,7 +17,9 @@
 
 package org.anhonesteffort.p25.monitor;
 
+import com.codahale.metrics.Gauge;
 import org.anhonesteffort.p25.P25DcodrConfig;
+import org.anhonesteffort.p25.metric.P25DcodrMetrics;
 import org.anhonesteffort.p25.model.ChannelId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,12 @@ public class ChannelMonitor {
   public ChannelMonitor(P25DcodrConfig config) {
     this.config = config;
     scheduleNewTask();
+    P25DcodrMetrics.getInstance().registerChannelMonitor(new Gauge<Integer>() {
+      @Override
+      public Integer getValue() {
+        return channels.keySet().size();
+      }
+    });
   }
 
   private void scheduleNewTask() {
@@ -99,7 +107,8 @@ public class ChannelMonitor {
         if (record.counter.getDataUnitCount() > 0) {
           record.counter.resetDataUnitCount();
         } else if (record.future.cancel(true)) {
-          log.warn(record.reference.getChannelId() + " hit inactive threshold, cancelling");
+          P25DcodrMetrics.getInstance().channelInactive();
+          log.warn(record.reference.getChannelId() + " hit inactive threshold, canceled");
           removeInactive(record);
         } else {
           removeInactive(record);

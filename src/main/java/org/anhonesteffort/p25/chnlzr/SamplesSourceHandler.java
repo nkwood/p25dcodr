@@ -64,7 +64,6 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
       public void onSuccess(Void aVoid) {
         context.close();
       }
-
       @Override
       public void onFailure(@Nonnull Throwable error) {
         context.close();

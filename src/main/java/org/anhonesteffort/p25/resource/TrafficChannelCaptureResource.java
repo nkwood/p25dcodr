@@ -17,6 +17,7 @@
 
 package org.anhonesteffort.p25.resource;
 
+import com.codahale.metrics.annotation.Timed;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -29,6 +30,7 @@ import org.anhonesteffort.p25.P25DcodrConfig;
 import org.anhonesteffort.p25.chnlzr.ChnlzrController;
 import org.anhonesteffort.p25.chnlzr.SamplesSourceHandler;
 import org.anhonesteffort.p25.kinesis.KinesisRecordProducerFactory;
+import org.anhonesteffort.p25.metric.P25DcodrMetrics;
 import org.anhonesteffort.p25.model.ChannelId;
 import org.anhonesteffort.p25.model.GroupCaptureRequest;
 import org.anhonesteffort.p25.monitor.ChannelMonitor;
@@ -89,6 +91,7 @@ public class TrafficChannelCaptureResource {
   }
 
   @POST
+  @Timed
   @Path("/group")
   public void capture(@NotNull @Valid GroupCaptureRequest request, @Suspended AsyncResponse response) {
     synchronized (txnLock) {
@@ -99,6 +102,7 @@ public class TrafficChannelCaptureResource {
         return;
       } else {
         pendingRequests.add(request.getChannelId());
+        P25DcodrMetrics.getInstance().groupCaptureRequest();
         log.info(request.getChannelId() + " requesting channel");
       }
     }
@@ -141,6 +145,7 @@ public class TrafficChannelCaptureResource {
         samplesSource.close();
         response.resume(Response.status(409).build());
       } else {
+        P25DcodrMetrics.getInstance().groupCaptureSuccess();
         log.info(channelId + " now capturing");
         pendingRequests.remove(channelId);
         channel.addSink(capture);

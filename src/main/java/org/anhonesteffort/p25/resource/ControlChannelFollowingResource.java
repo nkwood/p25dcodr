@@ -17,6 +17,7 @@
 
 package org.anhonesteffort.p25.resource;
 
+import com.codahale.metrics.annotation.Timed;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -100,6 +101,7 @@ public class ControlChannelFollowingResource {
   }
 
   @GET
+  @Timed
   public FollowList getList() {
     List<FollowRequest> followed =
         channelMonitor.getMonitored()
@@ -112,6 +114,7 @@ public class ControlChannelFollowingResource {
   }
 
   @POST
+  @Timed
   @ManagedAsync
   public void follow(@NotNull @Valid FollowRequest request, @Suspended AsyncResponse response) {
     synchronized (txnLock) {
@@ -136,6 +139,7 @@ public class ControlChannelFollowingResource {
   }
 
   @DELETE
+  @Timed
   public void unfollow(@NotNull @Valid UnfollowRequest request) {
     channelMonitor.cancel(request);
   }

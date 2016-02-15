@@ -18,11 +18,14 @@
 package org.anhonesteffort.p25.monitor;
 
 import org.anhonesteffort.p25.P25DcodrConfig;
+import org.anhonesteffort.p25.metric.MockMetrics;
+import org.anhonesteffort.p25.metric.P25DcodrMetrics;
 import org.anhonesteffort.p25.model.ControlChannelId;
 import org.anhonesteffort.p25.model.ControlChannelQualities;
 import org.anhonesteffort.p25.model.FollowRequest;
 import org.anhonesteffort.p25.model.GroupCaptureRequest;
 import org.anhonesteffort.p25.model.GroupChannelId;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -44,6 +47,12 @@ public class RetryingControlChannelMonitorTest {
     Mockito.when(config.getControlChannelRetryDelayMs()).thenReturn(0l);
 
     return config;
+  }
+
+  @Before
+  public void mockMetrics() {
+    final P25DcodrMetrics mock = Mockito.mock(P25DcodrMetrics.class);
+    MockMetrics.mockWith(mock);
   }
 
   @Test

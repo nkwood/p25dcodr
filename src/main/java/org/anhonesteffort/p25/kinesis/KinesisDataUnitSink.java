@@ -23,6 +23,7 @@ import org.anhonesteffort.dsp.Sink;
 import org.anhonesteffort.kinesis.pack.MessagePackingException;
 import org.anhonesteffort.kinesis.producer.KinesisRecordProducer;
 import org.anhonesteffort.kinesis.proto.ProtoP25Factory;
+import org.anhonesteffort.p25.metric.P25DcodrMetrics;
 import org.anhonesteffort.p25.model.ChannelId;
 import org.anhonesteffort.p25.model.ControlChannelId;
 import org.anhonesteffort.p25.model.DirectChannelId;
@@ -99,8 +100,10 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, Fut
   @Override
   public void consume(DataUnit element) {
     if (!element.isIntact()) {
+      P25DcodrMetrics.getInstance().dataUnitCorrupted();
       return;
     } else {
+      P25DcodrMetrics.getInstance().dataUnitIntact();
       dataUnitCount++;
     }
 
@@ -133,11 +136,13 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, Fut
 
   @Override
   public void onSuccess(String sequenceNumber) {
+    P25DcodrMetrics.getInstance().kinesisRecordPutSuccess();
     log.debug(channelId + " kinesis record sent, sequence number " + sequenceNumber);
   }
 
   @Override
   public void onFailure(@Nonnull Throwable error) {
+    P25DcodrMetrics.getInstance().kinesisRecordPutFailure();
     log.error(channelId + " kinesis record send failed", error);
   }
 

@@ -17,6 +17,7 @@
 
 package org.anhonesteffort.p25.resource;
 
+import com.codahale.metrics.annotation.Timed;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -83,6 +84,7 @@ public class ControlChannelQualifyingResource {
   }
 
   @POST
+  @Timed
   @ManagedAsync
   public void qualify(@NotNull @Valid QualifyRequest request, @Suspended AsyncResponse response) {
     ChannelRequest.Reader                  channelRequest = transform(request);
