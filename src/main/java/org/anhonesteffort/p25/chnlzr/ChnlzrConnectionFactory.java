@@ -57,6 +57,7 @@ public class ChnlzrConnectionFactory {
     bootstrap.group(workerGroup)
              .channel(channel)
              .option(ChannelOption.SO_KEEPALIVE, true)
+             .option(ChannelOption.TCP_NODELAY, true)
              .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, config.connectionTimeoutMs())
              .option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, config.bufferHighWaterMark())
              .option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, config.bufferLowWaterMark())
