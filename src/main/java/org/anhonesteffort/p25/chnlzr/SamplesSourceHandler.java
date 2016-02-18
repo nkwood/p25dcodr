@@ -24,11 +24,12 @@ import com.google.common.util.concurrent.SettableFuture;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
-import org.anhonesteffort.dsp.sample.DynamicSink;
+import org.anhonesteffort.dsp.ComplexNumber;
+import org.anhonesteffort.dsp.DynamicSink;
 import org.anhonesteffort.dsp.sample.Samples;
 
 import javax.annotation.Nonnull;
-import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.anhonesteffort.chnlzr.Proto.BaseMessage;
@@ -106,8 +107,14 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
 
       case SAMPLES:
         if (sink != null) {
-          ByteBuffer samples = message.getSamples().getSamples().asByteBuffer();
-          sink.consume(new Samples(samples.asFloatBuffer()));
+          FloatBuffer     floats  = message.getSamples().getSamples().asByteBuffer().asFloatBuffer();
+          ComplexNumber[] samples = new ComplexNumber[floats.limit() / 2];
+
+          for (int i = 0; i < samples.length; i++) {
+            samples[i] = new ComplexNumber(floats.get(i * 2), floats.get((i * 2) + 1));
+          }
+
+          sink.consume(new Samples(samples));
         }
         break;
 
