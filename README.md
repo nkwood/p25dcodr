@@ -21,7 +21,7 @@ $ cp example-chnlzr.properties chnlzr.properties
 
 ## Test
 ```
-$ java -jar target/p25dcodr-0.3.0.jar server config.yml
+$ java -jar target/p25dcodr-x.x.x.jar server config.yml
 ```
 
 ## Install
