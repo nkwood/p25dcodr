@@ -43,15 +43,15 @@ import static org.anhonesteffort.kinesis.proto.ProtoP25.P25ChannelId;
 public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, FutureCallback<String> {
 
   private static final Logger log = LoggerFactory.getLogger(KinesisDataUnitSink.class);
-  private final ProtoP25Factory protocol = new ProtoP25Factory();
+
+  private final ProtoP25Factory protocol      = new ProtoP25Factory();
+  private final AtomicInteger   dataUnitCount = new AtomicInteger(0);
 
   private final KinesisRecordProducer sender;
   private final ChannelId             channelId;
   private final P25ChannelId.Reader   protoId;
   private final Double                srcLatitude;
   private final Double                srcLongitude;
-
-  private AtomicInteger dataUnitCount = new AtomicInteger(0);
 
   protected KinesisDataUnitSink(KinesisRecordProducer sender,
                                 ChannelId             channelId,
