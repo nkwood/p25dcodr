@@ -35,6 +35,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.anhonesteffort.kinesis.proto.ProtoP25.P25DataUnit;
 import static org.anhonesteffort.kinesis.proto.ProtoP25.P25ChannelId;
 
@@ -49,7 +51,7 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, Fut
   private final Double                srcLatitude;
   private final Double                srcLongitude;
 
-  private Integer dataUnitCount = 0;
+  private AtomicInteger dataUnitCount = new AtomicInteger(0);
 
   protected KinesisDataUnitSink(KinesisRecordProducer sender,
                                 ChannelId             channelId,
@@ -104,7 +106,7 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, Fut
       return;
     } else {
       P25DcodrMetrics.getInstance().dataUnitIntact();
-      dataUnitCount++;
+      dataUnitCount.incrementAndGet();
     }
 
     P25DataUnit.Reader dataUnit = protocol.dataUnit(
@@ -125,13 +127,13 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, Fut
   }
 
   @Override
-  public Integer getDataUnitCount() {
-    return dataUnitCount;
+  public int getDataUnitCount() {
+    return dataUnitCount.get();
   }
 
   @Override
   public void resetDataUnitCount() {
-    dataUnitCount = 0;
+    dataUnitCount.set(0);
   }
 
   @Override
