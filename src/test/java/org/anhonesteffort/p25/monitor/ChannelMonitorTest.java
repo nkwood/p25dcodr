@@ -22,6 +22,7 @@ import org.anhonesteffort.p25.metric.P25DcodrMetrics;
 import org.anhonesteffort.p25.model.GroupCaptureRequest;
 import org.anhonesteffort.p25.model.GroupChannelId;
 import org.anhonesteffort.p25.P25DcodrConfig;
+import org.anhonesteffort.p25.protocol.ControlChannelFollower;
 import org.anhonesteffort.p25.protocol.GroupTrafficChannelCapture;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +34,7 @@ public class ChannelMonitorTest {
 
   private P25DcodrConfig config() {
     P25DcodrConfig config = Mockito.mock(P25DcodrConfig.class);
-    Mockito.when(config.getMinControlDataUnitRate()).thenReturn(2d);
+    Mockito.when(config.getMinControlDataUnitRate()).thenReturn(0.5d);
     Mockito.when(config.getMinTrafficDataUnitRate()).thenReturn(1d);
     return config;
   }
@@ -100,7 +101,7 @@ public class ChannelMonitorTest {
   }
 
   @Test
-  public void testActiveNotCanceled() throws InterruptedException {
+  public void testActiveTrafficNotCanceled() throws InterruptedException {
     final ChannelMonitor  MONITOR = new ChannelMonitor(config());
     final Future          FUTURE  = Mockito.mock(Future.class);
     final DataUnitCounter COUNTER = Mockito.mock(GroupTrafficChannelCapture.class);
@@ -120,7 +121,7 @@ public class ChannelMonitorTest {
   }
 
   @Test
-  public void testInactiveCanceled() throws InterruptedException {
+  public void testInactiveTrafficCanceled() throws InterruptedException {
     final ChannelMonitor  MONITOR = new ChannelMonitor(config());
     final Future          FUTURE  = Mockito.mock(Future.class);
     final DataUnitCounter COUNTER = Mockito.mock(GroupTrafficChannelCapture.class);
@@ -135,6 +136,47 @@ public class ChannelMonitorTest {
     Mockito.verify(FUTURE, Mockito.never()).cancel(Mockito.anyBoolean());
 
     Thread.sleep(1100);
+
+    Mockito.verify(FUTURE, Mockito.times(1)).cancel(Mockito.anyBoolean());
+    assert !MONITOR.contains(id);
+  }
+
+  @Test
+  public void testActiveControlNotCanceled() throws InterruptedException {
+    final ChannelMonitor  MONITOR = new ChannelMonitor(config());
+    final Future          FUTURE  = Mockito.mock(Future.class);
+    final DataUnitCounter COUNTER = Mockito.mock(ControlChannelFollower.class);
+
+    Mockito.when(COUNTER.getDataUnitCount()).thenReturn(1337);
+
+    final GroupChannelId id      = new GroupChannelId(10, 20, 30, 40, 50, 60d);
+    final Identifiable   capture = new GroupCaptureRequest(10d, 20d, 0, 1337d, id);
+
+    assert MONITOR.monitor(capture, FUTURE, COUNTER);
+    assert MONITOR.contains(id);
+
+    Thread.sleep(2100);
+
+    assert MONITOR.contains(id);
+    Mockito.verify(FUTURE, Mockito.never()).cancel(Mockito.anyBoolean());
+  }
+
+  @Test
+  public void testInactiveControlCanceled() throws InterruptedException {
+    final ChannelMonitor  MONITOR = new ChannelMonitor(config());
+    final Future          FUTURE  = Mockito.mock(Future.class);
+    final DataUnitCounter COUNTER = Mockito.mock(ControlChannelFollower.class);
+
+    Mockito.when(COUNTER.getDataUnitCount()).thenReturn(0);
+
+    final GroupChannelId id      = new GroupChannelId(10, 20, 30, 40, 50, 60d);
+    final Identifiable   capture = new GroupCaptureRequest(10d, 20d, 0, 1337d, id);
+
+    assert MONITOR.monitor(capture, FUTURE, COUNTER);
+    assert MONITOR.contains(id);
+    Mockito.verify(FUTURE, Mockito.never()).cancel(Mockito.anyBoolean());
+
+    Thread.sleep(2100);
 
     Mockito.verify(FUTURE, Mockito.times(1)).cancel(Mockito.anyBoolean());
     assert !MONITOR.contains(id);

@@ -44,7 +44,7 @@ public class RetryingControlChannelMonitorTest {
     P25DcodrConfig config = Mockito.mock(P25DcodrConfig.class);
 
     Mockito.when(config.getMinControlDataUnitRate()).thenReturn(1d);
-    Mockito.when(config.getMinTrafficDataUnitRate()).thenReturn(2d);
+    Mockito.when(config.getMinTrafficDataUnitRate()).thenReturn(0.5d);
     Mockito.when(config.getControlChannelRetryCount()).thenReturn(1);
     Mockito.when(config.getControlChannelRetryDelayMs()).thenReturn(0l);
 
