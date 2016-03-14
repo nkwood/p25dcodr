@@ -21,6 +21,8 @@ import com.codahale.metrics.Gauge;
 import org.anhonesteffort.p25.P25DcodrConfig;
 import org.anhonesteffort.p25.metric.P25DcodrMetrics;
 import org.anhonesteffort.p25.model.ChannelId;
+import org.anhonesteffort.p25.protocol.ControlChannelFollower;
+import org.anhonesteffort.p25.protocol.GroupTrafficChannelCapture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,11 +44,15 @@ public class ChannelMonitor {
   private   final Object                        txnLock  = new Object();
   protected final P25DcodrConfig                config;
 
-  private TimerTask timerTask;
+  private TimerTask controlTask;
+  private TimerTask trafficTask;
 
   public ChannelMonitor(P25DcodrConfig config) {
     this.config = config;
-    scheduleNewTask();
+
+    scheduleNewControlTask();
+    scheduleNewTrafficTask();
+
     P25DcodrMetrics.getInstance().registerChannelMonitor(new Gauge<Integer>() {
       @Override
       public Integer getValue() {
@@ -55,12 +61,21 @@ public class ChannelMonitor {
     });
   }
 
-  private void scheduleNewTask() {
-    timerTask = new MonitorTask();
+  private void scheduleNewControlTask() {
+    controlTask = new ControlMonitorTask();
     timer.scheduleAtFixedRate(
-        timerTask,
-        (long) (1000l / config.getMinDataUnitRate()),
-        (long) (1000l / config.getMinDataUnitRate())
+        controlTask,
+        (long) (1000l / config.getMinControlDataUnitRate()),
+        (long) (1000l / config.getMinControlDataUnitRate())
+    );
+  }
+
+  private void scheduleNewTrafficTask() {
+    trafficTask = new TrafficMonitorTask();
+    timer.scheduleAtFixedRate(
+        trafficTask,
+        (long) (1000l / config.getMinTrafficDataUnitRate()),
+        (long) (1000l / config.getMinTrafficDataUnitRate())
     );
   }
 
@@ -80,9 +95,19 @@ public class ChannelMonitor {
       if (contains(reference.getChannelId())) {
         return false;
       } else {
-        timerTask.cancel();
+        if (counter instanceof ControlChannelFollower) {
+          controlTask.cancel();
+        } else if (counter instanceof GroupTrafficChannelCapture) {
+          trafficTask.cancel();
+        }
+
         channels.put(reference.getChannelId(), new MonitorRecord(reference, channelFuture, counter));
-        scheduleNewTask();
+
+        if (counter instanceof ControlChannelFollower) {
+          scheduleNewControlTask();
+        } else if (counter instanceof GroupTrafficChannelCapture) {
+          scheduleNewTrafficTask();
+        }
         return true;
       }
     }
@@ -99,11 +124,37 @@ public class ChannelMonitor {
     channels.remove(record.reference.getChannelId());
   }
 
-  private class MonitorTask extends TimerTask {
+  private class ControlMonitorTask extends TimerTask {
     @Override
     public void run() {
       channels.keySet().forEach(key -> {
         MonitorRecord record = channels.get(key);
+        if (!(record.counter instanceof ControlChannelFollower)) {
+          return;
+        }
+
+        if (record.counter.getDataUnitCount() > 0) {
+          record.counter.resetDataUnitCount();
+        } else if (record.future.cancel(true)) {
+          P25DcodrMetrics.getInstance().channelInactive();
+          log.warn(record.reference.getChannelId() + " hit inactive threshold, canceled");
+          removeInactive(record);
+        } else {
+          removeInactive(record);
+      }
+      });
+    }
+  }
+
+  private class TrafficMonitorTask extends TimerTask {
+    @Override
+    public void run() {
+      channels.keySet().forEach(key -> {
+        MonitorRecord record = channels.get(key);
+        if (!(record.counter instanceof GroupTrafficChannelCapture)) {
+          return;
+        }
+
         if (record.counter.getDataUnitCount() > 0) {
           record.counter.resetDataUnitCount();
         } else if (record.future.cancel(true)) {

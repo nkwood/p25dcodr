@@ -50,7 +50,8 @@ public class P25DcodrConfig extends Configuration {
   @Min(1)   private Long    channelRequestTimeoutMs;
   @Min(1)   private Long    channelQualifyTimeMs;
   @Min(1)   private Integer samplesQueueSize;
-  @NotNull  private Double  minDataUnitRate;
+  @NotNull  private Double  minControlDataUnitRate;
+  @NotNull  private Double  minTrafficDataUnitRate;
   @Min(0)   private Integer controlChannelRetryCount;
   @Min(0)   private Long    controlChannelRetryDelayMs;
 
@@ -103,8 +104,13 @@ public class P25DcodrConfig extends Configuration {
   }
 
   @JsonProperty
-  public Double getMinDataUnitRate() {
-    return minDataUnitRate;
+  public Double getMinControlDataUnitRate() {
+    return minControlDataUnitRate;
+  }
+
+  @JsonProperty
+  public Double getMinTrafficDataUnitRate() {
+    return minTrafficDataUnitRate;
   }
 
   @JsonProperty

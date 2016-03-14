@@ -4,7 +4,8 @@ chnlzrPort: 7070
 channelRequestTimeoutMs: 2000
 channelQualifyTimeMs: 10000
 samplesQueueSize: 10
-minDataUnitRate: 0.5
+minControlDataUnitRate: 0.5
+minTrafficDataUnitRate: 1.0
 controlChannelRetryCount: 3
 controlChannelRetryDelayMs: 10000
 

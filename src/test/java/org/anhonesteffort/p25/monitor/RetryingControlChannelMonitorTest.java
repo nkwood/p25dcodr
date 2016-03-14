@@ -25,6 +25,7 @@ import org.anhonesteffort.p25.model.ControlChannelQualities;
 import org.anhonesteffort.p25.model.FollowRequest;
 import org.anhonesteffort.p25.model.GroupCaptureRequest;
 import org.anhonesteffort.p25.model.GroupChannelId;
+import org.anhonesteffort.p25.protocol.ControlChannelFollower;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -42,7 +43,8 @@ public class RetryingControlChannelMonitorTest {
   private P25DcodrConfig config() {
     P25DcodrConfig config = Mockito.mock(P25DcodrConfig.class);
 
-    Mockito.when(config.getMinDataUnitRate()).thenReturn(1d);
+    Mockito.when(config.getMinControlDataUnitRate()).thenReturn(1d);
+    Mockito.when(config.getMinTrafficDataUnitRate()).thenReturn(2d);
     Mockito.when(config.getControlChannelRetryCount()).thenReturn(1);
     Mockito.when(config.getControlChannelRetryDelayMs()).thenReturn(0l);
 
@@ -61,7 +63,7 @@ public class RetryingControlChannelMonitorTest {
     final WebTarget       FOLLOW  = Mockito.mock(WebTarget.class);
     final ChannelMonitor  MONITOR = new RetryingControlChannelMonitor(config(), QUALIFY, FOLLOW);
     final Future          FUTURE  = Mockito.mock(Future.class);
-    final DataUnitCounter COUNTER = Mockito.mock(DataUnitCounter.class);
+    final DataUnitCounter COUNTER = Mockito.mock(ControlChannelFollower.class);
 
     Mockito.when(COUNTER.getDataUnitCount()).thenReturn(1337);
 
@@ -81,7 +83,7 @@ public class RetryingControlChannelMonitorTest {
     final WebTarget       FOLLOW  = Mockito.mock(WebTarget.class);
     final ChannelMonitor  MONITOR = new RetryingControlChannelMonitor(config(), QUALIFY, FOLLOW);
     final Future          FUTURE  = Mockito.mock(Future.class);
-    final DataUnitCounter COUNTER = Mockito.mock(DataUnitCounter.class);
+    final DataUnitCounter COUNTER = Mockito.mock(ControlChannelFollower.class);
 
     Mockito.when(COUNTER.getDataUnitCount()).thenReturn(1337);
 
@@ -99,7 +101,7 @@ public class RetryingControlChannelMonitorTest {
     final WebTarget       FOLLOW  = Mockito.mock(WebTarget.class);
     final ChannelMonitor  MONITOR = new RetryingControlChannelMonitor(config(), QUALIFY, FOLLOW);
     final Future          FUTURE  = Mockito.mock(Future.class);
-    final DataUnitCounter COUNTER = Mockito.mock(DataUnitCounter.class);
+    final DataUnitCounter COUNTER = Mockito.mock(ControlChannelFollower.class);
 
     Mockito.when(COUNTER.getDataUnitCount()).thenReturn(1337);
 
@@ -122,7 +124,7 @@ public class RetryingControlChannelMonitorTest {
     final WebTarget       FOLLOW  = Mockito.mock(WebTarget.class);
     final ChannelMonitor  MONITOR = new RetryingControlChannelMonitor(config(), QUALIFY, FOLLOW);
     final Future          FUTURE  = Mockito.mock(Future.class);
-    final DataUnitCounter COUNTER = Mockito.mock(DataUnitCounter.class);
+    final DataUnitCounter COUNTER = Mockito.mock(ControlChannelFollower.class);
 
     Mockito.when(COUNTER.getDataUnitCount()).thenReturn(1337);
 
@@ -144,7 +146,7 @@ public class RetryingControlChannelMonitorTest {
     final WebTarget       FOLLOW  = Mockito.mock(WebTarget.class);
     final ChannelMonitor  MONITOR = new RetryingControlChannelMonitor(config(), QUALIFY, FOLLOW);
     final Future          FUTURE  = Mockito.mock(Future.class);
-    final DataUnitCounter COUNTER = Mockito.mock(DataUnitCounter.class);
+    final DataUnitCounter COUNTER = Mockito.mock(ControlChannelFollower.class);
 
     Mockito.when(COUNTER.getDataUnitCount()).thenReturn(0);
 
@@ -173,7 +175,7 @@ public class RetryingControlChannelMonitorTest {
 
     final ChannelMonitor  MONITOR        = new RetryingControlChannelMonitor(config(), QUALIFY_TARGET, FOLLOW_TARGET);
     final Future          CAPTURE_FUTURE = Mockito.mock(Future.class);
-    final DataUnitCounter COUNTER        = Mockito.mock(DataUnitCounter.class);
+    final DataUnitCounter COUNTER        = Mockito.mock(ControlChannelFollower.class);
 
     Mockito.when(COUNTER.getDataUnitCount()).thenReturn(0);
 
@@ -212,7 +214,7 @@ public class RetryingControlChannelMonitorTest {
 
     final ChannelMonitor  MONITOR        = new RetryingControlChannelMonitor(config(), QUALIFY_TARGET, FOLLOW_TARGET);
     final Future          CAPTURE_FUTURE = Mockito.mock(Future.class);
-    final DataUnitCounter COUNTER        = Mockito.mock(DataUnitCounter.class);
+    final DataUnitCounter COUNTER        = Mockito.mock(ControlChannelFollower.class);
 
     Mockito.when(COUNTER.getDataUnitCount()).thenReturn(0);
 

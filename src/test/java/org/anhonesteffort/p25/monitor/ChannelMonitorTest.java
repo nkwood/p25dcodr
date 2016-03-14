@@ -22,6 +22,7 @@ import org.anhonesteffort.p25.metric.P25DcodrMetrics;
 import org.anhonesteffort.p25.model.GroupCaptureRequest;
 import org.anhonesteffort.p25.model.GroupChannelId;
 import org.anhonesteffort.p25.P25DcodrConfig;
+import org.anhonesteffort.p25.protocol.GroupTrafficChannelCapture;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -32,7 +33,8 @@ public class ChannelMonitorTest {
 
   private P25DcodrConfig config() {
     P25DcodrConfig config = Mockito.mock(P25DcodrConfig.class);
-    Mockito.when(config.getMinDataUnitRate()).thenReturn(1d);
+    Mockito.when(config.getMinControlDataUnitRate()).thenReturn(2d);
+    Mockito.when(config.getMinTrafficDataUnitRate()).thenReturn(1d);
     return config;
   }
 
@@ -46,7 +48,7 @@ public class ChannelMonitorTest {
   public void testContains() {
     final ChannelMonitor  MONITOR = new ChannelMonitor(config());
     final Future          FUTURE  = Mockito.mock(Future.class);
-    final DataUnitCounter COUNTER = Mockito.mock(DataUnitCounter.class);
+    final DataUnitCounter COUNTER = Mockito.mock(GroupTrafficChannelCapture.class);
 
     Mockito.when(COUNTER.getDataUnitCount()).thenReturn(1337);
 
@@ -64,7 +66,7 @@ public class ChannelMonitorTest {
   public void testGetMonitored() {
     final ChannelMonitor  MONITOR = new ChannelMonitor(config());
     final Future          FUTURE  = Mockito.mock(Future.class);
-    final DataUnitCounter COUNTER = Mockito.mock(DataUnitCounter.class);
+    final DataUnitCounter COUNTER = Mockito.mock(GroupTrafficChannelCapture.class);
 
     Mockito.when(COUNTER.getDataUnitCount()).thenReturn(1337);
 
@@ -80,7 +82,7 @@ public class ChannelMonitorTest {
   public void testCancel() {
     final ChannelMonitor  MONITOR = new ChannelMonitor(config());
     final Future          FUTURE  = Mockito.mock(Future.class);
-    final DataUnitCounter COUNTER = Mockito.mock(DataUnitCounter.class);
+    final DataUnitCounter COUNTER = Mockito.mock(GroupTrafficChannelCapture.class);
 
     Mockito.when(COUNTER.getDataUnitCount()).thenReturn(1337);
 
@@ -101,7 +103,7 @@ public class ChannelMonitorTest {
   public void testActiveNotCanceled() throws InterruptedException {
     final ChannelMonitor  MONITOR = new ChannelMonitor(config());
     final Future          FUTURE  = Mockito.mock(Future.class);
-    final DataUnitCounter COUNTER = Mockito.mock(DataUnitCounter.class);
+    final DataUnitCounter COUNTER = Mockito.mock(GroupTrafficChannelCapture.class);
 
     Mockito.when(COUNTER.getDataUnitCount()).thenReturn(1337);
 
@@ -121,7 +123,7 @@ public class ChannelMonitorTest {
   public void testInactiveCanceled() throws InterruptedException {
     final ChannelMonitor  MONITOR = new ChannelMonitor(config());
     final Future          FUTURE  = Mockito.mock(Future.class);
-    final DataUnitCounter COUNTER = Mockito.mock(DataUnitCounter.class);
+    final DataUnitCounter COUNTER = Mockito.mock(GroupTrafficChannelCapture.class);
 
     Mockito.when(COUNTER.getDataUnitCount()).thenReturn(0);
 
