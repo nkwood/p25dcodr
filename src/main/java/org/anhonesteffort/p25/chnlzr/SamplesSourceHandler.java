@@ -32,9 +32,9 @@ import javax.annotation.Nonnull;
 import java.nio.FloatBuffer;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.anhonesteffort.chnlzr.Proto.BaseMessage;
-import static org.anhonesteffort.chnlzr.Proto.Capabilities;
-import static org.anhonesteffort.chnlzr.Proto.ChannelState;
+import static org.anhonesteffort.chnlzr.capnp.Proto.BaseMessage;
+import static org.anhonesteffort.chnlzr.capnp.Proto.Capabilities;
+import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelState;
 
 public class SamplesSourceHandler extends ChannelHandlerAdapter {
 

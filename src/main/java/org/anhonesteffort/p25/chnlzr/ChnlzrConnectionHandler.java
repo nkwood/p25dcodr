@@ -24,8 +24,8 @@ import org.anhonesteffort.chnlzr.ProtocolErrorException;
 
 import java.net.ConnectException;
 
-import static org.anhonesteffort.chnlzr.Proto.BaseMessage;
-import static org.anhonesteffort.chnlzr.Proto.Capabilities;
+import static org.anhonesteffort.chnlzr.capnp.Proto.BaseMessage;
+import static org.anhonesteffort.chnlzr.capnp.Proto.Capabilities;
 
 public class ChnlzrConnectionHandler extends ChannelHandlerAdapter {
 

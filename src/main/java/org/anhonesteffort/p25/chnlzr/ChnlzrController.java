@@ -25,8 +25,8 @@ import org.anhonesteffort.p25.metric.P25DcodrMetrics;
 
 import javax.annotation.Nonnull;
 
-import static org.anhonesteffort.chnlzr.Proto.Capabilities;
-import static org.anhonesteffort.chnlzr.Proto.ChannelRequest;
+import static org.anhonesteffort.chnlzr.capnp.Proto.Capabilities;
+import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelRequest;
 
 public class ChnlzrController {
 

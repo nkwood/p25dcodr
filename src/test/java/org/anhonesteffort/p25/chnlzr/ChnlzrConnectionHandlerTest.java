@@ -19,7 +19,7 @@ package org.anhonesteffort.p25.chnlzr;
 
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.channel.ChannelHandlerContext;
-import org.anhonesteffort.chnlzr.CapnpUtil;
+import org.anhonesteffort.chnlzr.capnp.ProtoFactory;
 import org.capnproto.MessageBuilder;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.util.concurrent.ExecutionException;
 
-import static org.anhonesteffort.chnlzr.Proto.BaseMessage;
+import static org.anhonesteffort.chnlzr.capnp.Proto.BaseMessage;
 
 public class ChnlzrConnectionHandlerTest {
 
@@ -50,7 +50,7 @@ public class ChnlzrConnectionHandlerTest {
     final ChannelHandlerContext                   CONTEXT = Mockito.mock(ChannelHandlerContext.class);
     final ChnlzrConnectionHandler                 HANDLER = new ChnlzrConnectionHandler(FUTURE);
 
-    final MessageBuilder CAPS_MESSAGE = CapnpUtil.capabilities(10d, 20d, 0, 30d, 40d, 50l);
+    final MessageBuilder CAPS_MESSAGE = new ProtoFactory().capabilities(10d, 20d, 0, 30d, 40d, 50l);
 
     assert HANDLER.getCapabilities() == null;
     assert !FUTURE.isDone();

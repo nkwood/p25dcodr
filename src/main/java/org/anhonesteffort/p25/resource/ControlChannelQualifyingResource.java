@@ -22,8 +22,8 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
-import org.anhonesteffort.chnlzr.CapnpUtil;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
+import org.anhonesteffort.chnlzr.capnp.ProtoFactory;
 import org.anhonesteffort.p25.P25Channel;
 import org.anhonesteffort.p25.P25ChannelSpec;
 import org.anhonesteffort.p25.P25Config;
@@ -54,13 +54,14 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.anhonesteffort.chnlzr.Proto.ChannelRequest;
+import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelRequest;
 
 @Path("/qualify")
 @Produces(MediaType.APPLICATION_JSON)
 public class ControlChannelQualifyingResource {
 
   private static final Logger log = LoggerFactory.getLogger(ControlChannelQualifyingResource.class);
+  private final ProtoFactory proto = new ProtoFactory();
 
   private final P25DcodrConfig           config;
   private final ChnlzrController         chnlzr;
@@ -76,8 +77,7 @@ public class ControlChannelQualifyingResource {
   }
 
   private ChannelRequest.Reader transform(QualifyRequest request) {
-    return CapnpUtil.channelRequest(
-        request.getLatitude(), request.getLongitude(), 0, request.getPolarization(),
+    return proto.channelRequest(
         request.getFrequency(), P25Config.CHANNEL_WIDTH, P25Config.SAMPLE_RATE,
         config.getP25Config().getMaxRateDiff()
     );

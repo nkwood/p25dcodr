@@ -27,9 +27,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.anhonesteffort.chnlzr.ChnlzrConfig;
-import org.anhonesteffort.chnlzr.pipeline.BaseMessageDecoder;
-import org.anhonesteffort.chnlzr.pipeline.BaseMessageEncoder;
-import org.anhonesteffort.chnlzr.pipeline.IdleStateHeartbeatWriter;
+import org.anhonesteffort.chnlzr.capnp.BaseMessageDecoder;
+import org.anhonesteffort.chnlzr.capnp.BaseMessageEncoder;
+import org.anhonesteffort.chnlzr.netty.IdleStateHeartbeatWriter;
 
 import java.net.ConnectException;
 import java.util.concurrent.TimeUnit;

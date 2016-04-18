@@ -19,23 +19,25 @@ package org.anhonesteffort.p25.chnlzr;
 
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.channel.ChannelHandlerContext;
-import org.anhonesteffort.chnlzr.CapnpUtil;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
+import org.anhonesteffort.chnlzr.capnp.ProtoFactory;
 import org.capnproto.MessageBuilder;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.concurrent.ExecutionException;
 
-import static org.anhonesteffort.chnlzr.Proto.BaseMessage;
-import static org.anhonesteffort.chnlzr.Proto.ChannelRequest;
-import static org.anhonesteffort.chnlzr.Proto.ChannelState;
-import static org.anhonesteffort.chnlzr.Proto.Error;
+import static org.anhonesteffort.chnlzr.capnp.Proto.BaseMessage;
+import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelRequest;
+import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelState;
+import static org.anhonesteffort.chnlzr.capnp.Proto.Error;
 
 public class ChannelRequestHandlerTest {
 
+  private static final ProtoFactory PROTO = new ProtoFactory();
+
   private ChannelRequest.Reader request() {
-    return CapnpUtil.channelRequest(10d, 20d, 30d, 0, 40d, 50d, 60l, 70l);
+    return PROTO.channelRequest(40d, 50d, 60l, 70l);
   }
 
   @Test
@@ -69,7 +71,7 @@ public class ChannelRequestHandlerTest {
     final ChannelHandlerContext                 CONTEXT = Mockito.mock(ChannelHandlerContext.class);
     final ChannelRequestHandler                 HANDLER = new ChannelRequestHandler(FUTURE, REQUEST);
 
-    final MessageBuilder STATE_MESSAGE = CapnpUtil.state(10l, 20d);
+    final MessageBuilder STATE_MESSAGE = PROTO.state(10l, 20d);
 
     assert HANDLER.getState() == null;
 
@@ -95,7 +97,7 @@ public class ChannelRequestHandlerTest {
     final ChannelHandlerContext                 CONTEXT = Mockito.mock(ChannelHandlerContext.class);
     final ChannelRequestHandler                 HANDLER = new ChannelRequestHandler(FUTURE, REQUEST);
 
-    final MessageBuilder MESSAGE_SENT = CapnpUtil.error(Error.ERROR_BANDWIDTH_UNAVAILABLE);
+    final MessageBuilder MESSAGE_SENT = PROTO.error(Error.ERROR_BANDWIDTH_UNAVAILABLE);
 
     assert !FUTURE.isDone();
     Mockito.verify(CONTEXT, Mockito.never()).close();

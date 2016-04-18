@@ -20,15 +20,16 @@ package org.anhonesteffort.p25.chnlzr;
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import org.anhonesteffort.chnlzr.CapnpUtil;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
+import org.anhonesteffort.chnlzr.capnp.ProtoFactory;
 
-import static org.anhonesteffort.chnlzr.Proto.BaseMessage;
-import static org.anhonesteffort.chnlzr.Proto.ChannelRequest;
-import static org.anhonesteffort.chnlzr.Proto.ChannelState;
+import static org.anhonesteffort.chnlzr.capnp.Proto.BaseMessage;
+import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelRequest;
+import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelState;
 
 public class ChannelRequestHandler extends ChannelHandlerAdapter {
 
+  private final ProtoFactory proto = new ProtoFactory();
   private final SettableFuture<ChannelRequestHandler> future;
   private final ChannelRequest.Reader request;
 
@@ -51,7 +52,7 @@ public class ChannelRequestHandler extends ChannelHandlerAdapter {
   @Override
   public void handlerAdded(ChannelHandlerContext context) {
     this.context = context;
-    context.writeAndFlush(CapnpUtil.channelRequest(request));
+    context.writeAndFlush(proto.channelRequest(request));
   }
 
   @Override

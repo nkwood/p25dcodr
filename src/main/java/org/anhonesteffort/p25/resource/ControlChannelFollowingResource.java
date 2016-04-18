@@ -21,7 +21,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
-import org.anhonesteffort.chnlzr.CapnpUtil;
+import org.anhonesteffort.chnlzr.capnp.ProtoFactory;
 import org.anhonesteffort.kinesis.producer.KinesisRecordProducer;
 import org.anhonesteffort.p25.P25Channel;
 import org.anhonesteffort.p25.P25ChannelSpec;
@@ -59,7 +59,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.anhonesteffort.chnlzr.Proto.ChannelRequest;
+import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelRequest;
 
 @Path("/channels/control")
 @Produces(MediaType.APPLICATION_JSON)
@@ -67,6 +67,7 @@ public class ControlChannelFollowingResource {
 
   private static final Logger log = LoggerFactory.getLogger(ControlChannelFollowingResource.class);
 
+  private final ProtoFactory     proto           = new ProtoFactory();
   private final Queue<ChannelId> pendingRequests = new ConcurrentLinkedQueue<>();
   private final Object           txnLock         = new Object();
 
@@ -93,8 +94,7 @@ public class ControlChannelFollowingResource {
   }
 
   private ChannelRequest.Reader transform(FollowRequest request) {
-    return CapnpUtil.channelRequest(
-        request.getLatitude(), request.getLongitude(), 0, request.getPolarization(),
+    return proto.channelRequest(
         request.getFrequency(), P25Config.CHANNEL_WIDTH, P25Config.SAMPLE_RATE,
         config.getP25Config().getMaxRateDiff()
     );
