@@ -38,11 +38,11 @@ import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelState;
 
 public class SamplesSourceHandler extends ChannelHandlerAdapter {
 
-  private final SettableFuture<Void> closePromise;
-  private final Capabilities.Reader  capabilities;
-  private       ChannelState.Reader  state;
+  private final SettableFuture<Void>                  closePromise;
+  private final Capabilities.Reader                   capabilities;
+  private final AtomicReference<DynamicSink<Samples>> sink = new AtomicReference<>(null);
 
-  private AtomicReference<DynamicSink<Samples>> sink = new AtomicReference<>(null);
+  private ChannelState.Reader state;
 
   public SamplesSourceHandler(ChannelHandlerContext context,
                               Capabilities.Reader   capabilities,
