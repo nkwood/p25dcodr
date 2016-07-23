@@ -42,7 +42,7 @@
         </repository>
         <repository>
             <id>p25-common-mvn-repo</id>
-            <url>https://raw.github.com/rhodey/p25-common/mvn-repo/</url>
+            <url>https://raw.github.com/radiowitness/p25-common/mvn-repo/</url>
             <snapshots>
                 <updatePolicy>always</updatePolicy>
                 <enabled>true</enabled>
