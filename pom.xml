@@ -50,7 +50,7 @@
         </repository>
         <repository>
             <id>kinesis-common-mvn-repo</id>
-            <url>https://raw.github.com/rhodey/kinesis-common/mvn-repo/</url>
+            <url>https://raw.github.com/radiowitness/kinesis-common/mvn-repo/</url>
             <snapshots>
                 <updatePolicy>always</updatePolicy>
                 <enabled>true</enabled>
