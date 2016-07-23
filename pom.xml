@@ -34,7 +34,7 @@
     <repositories>
         <repository>
             <id>chnlzr-common-mvn-repo</id>
-            <url>https://raw.github.com/rhodey/chnlzr-common/mvn-repo/</url>
+            <url>https://raw.github.com/radiowitness/chnlzr-common/mvn-repo/</url>
             <snapshots>
                 <updatePolicy>always</updatePolicy>
                 <enabled>true</enabled>
