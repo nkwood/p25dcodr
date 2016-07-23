@@ -8,7 +8,7 @@ an Amazon Kinesis stream of P25 data units.
 # useradd -m p25dcodr
 # su p25dcodr
 $ cd /home/p25dcodr
-$ git clone https://github.com/rhodey/p25dcodr
+$ git clone https://github.com/radiowitness/p25dcodr
 $ cd p25dcodr
 $ mvn package
 ```
