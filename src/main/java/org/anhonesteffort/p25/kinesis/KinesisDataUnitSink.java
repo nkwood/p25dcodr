@@ -102,14 +102,14 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, Fut
   @Override
   public void consume(DataUnit element) {
     if (!element.isIntact()) {
-      P25DcodrMetrics.getInstance().dataUnitCorrupted();
+      //P25DcodrMetrics.getInstance().dataUnitCorrupted();
       return;
     } else {
-      P25DcodrMetrics.getInstance().dataUnitIntact();
+      //P25DcodrMetrics.getInstance().dataUnitIntact();
       dataUnitCount.incrementAndGet();
     }
 
-    P25DataUnit.Reader dataUnit = protocol.dataUnit(
+    /*P25DataUnit.Reader dataUnit = protocol.dataUnit(
         protoId, srcLatitude, srcLongitude, element.getNid().getNac(),
         element.getNid().getDuid().getId(), element.getBuffer().array()
     );
@@ -123,7 +123,7 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, Fut
 
     } catch (MessagePackingException e) {
       log.error(channelId + " error packing message for send", e);
-    }
+    }*/
   }
 
   @Override
