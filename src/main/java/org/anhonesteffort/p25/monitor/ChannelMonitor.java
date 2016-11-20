@@ -136,7 +136,6 @@ public class ChannelMonitor {
         if (record.counter.getDataUnitCount() > 0) {
           record.counter.resetDataUnitCount();
         } else if (record.future.cancel(true)) {
-          P25DcodrMetrics.getInstance().channelInactive();
           log.warn(record.reference.getChannelId() + " hit inactive threshold, canceled");
           removeInactive(record);
         } else {
@@ -158,7 +157,6 @@ public class ChannelMonitor {
         if (record.counter.getDataUnitCount() > 0) {
           record.counter.resetDataUnitCount();
         } else if (record.future.cancel(true)) {
-          P25DcodrMetrics.getInstance().channelInactive();
           log.warn(record.reference.getChannelId() + " hit inactive threshold, canceled");
           removeInactive(record);
         } else {

@@ -60,63 +60,59 @@ public class P25DcodrMetrics {
   }
 
   public void chnlzrConnectSuccess() {
-    registry.counter("chnlzrConnectSuccess instance=" + instanceId + "*").inc();
+    registry.counter("chnlzrConnectSuccess instance=" + instanceId).inc();
   }
 
   public void chnlzrConnectFailure() {
-    registry.counter("chnlzrConnectFailure instance=" + instanceId + "*").inc();
+    registry.counter("chnlzrConnectFailure instance=" + instanceId).inc();
   }
 
   public void chnlzrRequest(double frequency) {
-    registry.histogram("chnlzrRequest instance=" + instanceId + "*").update((long)frequency);
+    registry.histogram("chnlzrRequest instance=" + instanceId).update((long)frequency);
   }
 
   public void chnlzrRequestSuccess() {
-    registry.counter("chnlzrRequestSuccess instance=" + instanceId + "*").inc();
+    registry.counter("chnlzrRequestSuccess instance=" + instanceId).inc();
   }
 
   public void chnlzrRequestFailure() {
-    registry.counter("chnlzrRequestFailure instance=" + instanceId + "*").inc();
+    registry.counter("chnlzrRequestFailure instance=" + instanceId).inc();
   }
 
   public void chnlzrRequestDenied(int code) {
-    registry.counter("chnlzrRequestDenied instance=" + instanceId + "*" + " code=" + code + "*").inc();
+    registry.counter("chnlzrRequestDenied instance=" + instanceId + " code=" + code).inc();
   }
 
   public void chnlzrStreamClosed(int code) {
-    registry.counter("chnlzrStreamClosed instance=" + instanceId + "*" + " code=" + code + "*").inc();
+    registry.counter("chnlzrStreamClosed instance=" + instanceId + " code=" + code).inc();
   }
 
   public void registerChannelMonitor(Gauge<Integer> gauge) {
-    registry.register("channelMonitor", gauge);
-  }
-
-  public void channelInactive() {
-    registry.counter("channelInactive instance=" + instanceId + "*").inc();
+    registry.register("channelMonitor instance=" + instanceId, gauge);
   }
 
   public void groupCaptureRequest() {
-    registry.counter("groupCaptureRequest instance=" + instanceId + "*").inc();
+    registry.counter("groupCaptureRequest instance=" + instanceId).inc();
   }
 
   public void groupCaptureSuccess() {
-    registry.counter("groupCaptureSuccess instance=" + instanceId + "*").inc();
+    registry.counter("groupCaptureSuccess instance=" + instanceId).inc();
   }
 
   public void dataUnitCorrupted() {
-    registry.counter("dataUnitCorrupted instance=" + instanceId + "*").inc();
+    registry.counter("dataUnitCorrupted instance=" + instanceId).inc();
   }
 
   public void dataUnitIntact() {
-    registry.counter("dataUnitIntact instance=" + instanceId + "*").inc();
+    registry.counter("dataUnitIntact instance=" + instanceId).inc();
   }
 
   public void kinesisRecordPutSuccess() {
-    registry.counter("kinesisRecordPutSuccess instance=" + instanceId + "*").inc();
+    registry.counter("kinesisRecordPutSuccess instance=" + instanceId).inc();
   }
 
   public void kinesisRecordPutFailure() {
-    registry.counter("kinesisRecordPutFailure instance=" + instanceId + "*").inc();
+    registry.counter("kinesisRecordPutFailure instance=" + instanceId).inc();
   }
 
 }
