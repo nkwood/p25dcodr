@@ -17,9 +17,9 @@
 
 package org.anhonesteffort.p25.kinesis;
 
-import org.anhonesteffort.kinesis.producer.KinesisClientFactory;
-import org.anhonesteffort.kinesis.producer.KinesisRecordProducer;
-import org.anhonesteffort.kinesis.producer.PutRecordTaskFactory;
+import io.radiowitness.kinesis.producer.KinesisClientFactory;
+import io.radiowitness.kinesis.producer.KinesisRecordProducer;
+import io.radiowitness.kinesis.producer.PutRecordTaskFactory;
 import org.anhonesteffort.p25.model.ChannelId;
 
 public class KinesisRecordProducerFactory {

@@ -17,7 +17,7 @@
 
 package org.anhonesteffort.p25.protocol;
 
-import org.anhonesteffort.kinesis.producer.KinesisRecordProducer;
+import io.radiowitness.kinesis.producer.KinesisRecordProducer;
 import org.anhonesteffort.p25.P25Config;
 import org.anhonesteffort.p25.kinesis.KinesisDataUnitSink;
 import org.anhonesteffort.p25.model.GroupChannelId;

@@ -19,10 +19,10 @@ package org.anhonesteffort.p25.kinesis;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import io.radiowitness.kinesis.producer.KinesisRecordProducer;
+import io.radiowitness.proto.p25.ProtoP25Factory;
+import io.radiowitness.proto.pack.MessagePackingException;
 import org.anhonesteffort.dsp.Sink;
-import org.anhonesteffort.kinesis.pack.MessagePackingException;
-import org.anhonesteffort.kinesis.producer.KinesisRecordProducer;
-import org.anhonesteffort.kinesis.proto.ProtoP25Factory;
 import org.anhonesteffort.p25.metric.P25DcodrMetrics;
 import org.anhonesteffort.p25.model.ChannelId;
 import org.anhonesteffort.p25.model.ControlChannelId;
@@ -37,8 +37,8 @@ import javax.annotation.Nonnull;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.anhonesteffort.kinesis.proto.ProtoP25.P25DataUnit;
-import static org.anhonesteffort.kinesis.proto.ProtoP25.P25ChannelId;
+import static io.radiowitness.proto.p25.ProtoP25.P25ChannelId;
+import static io.radiowitness.proto.p25.ProtoP25.P25DataUnit;
 
 public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, FutureCallback<String> {
 
@@ -49,7 +49,7 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, Fut
 
   private final KinesisRecordProducer sender;
   private final ChannelId             channelId;
-  private final P25ChannelId.Reader   protoId;
+  private final P25ChannelId.Builder  protoId;
   private final Double                srcLatitude;
   private final Double                srcLongitude;
 
@@ -81,19 +81,19 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, Fut
     }
   }
 
-  private P25ChannelId.Reader translate(ControlChannelId id) {
+  private P25ChannelId.Builder translate(ControlChannelId id) {
     return protocol.controlId(
         id.getWacn(), id.getSystemId(), id.getRfSubsystemId(), id.getSiteId()
     );
   }
 
-  private P25ChannelId.Reader translate(DirectChannelId id) {
+  private P25ChannelId.Builder translate(DirectChannelId id) {
     return protocol.directId(
         id.getWacn(), id.getSystemId(), id.getRfSubsystemId(), id.getSourceId(), id.getDestinationId()
     );
   }
 
-  private P25ChannelId.Reader translate(GroupChannelId id) {
+  private P25ChannelId.Builder translate(GroupChannelId id) {
     return protocol.groupId(
         id.getWacn(), id.getSystemId(), id.getRfSubsystemId(), id.getSourceId(), id.getGroupId(), id.getFrequency()
     );
@@ -109,7 +109,7 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, Fut
       dataUnitCount.incrementAndGet();
     }
 
-    P25DataUnit.Reader dataUnit = protocol.dataUnit(
+    P25DataUnit.Builder dataUnit = protocol.dataUnit(
         protoId, srcLatitude, srcLongitude, element.getNid().getNac(),
         element.getNid().getDuid().getId(), element.getBuffer().array()
     );
@@ -117,7 +117,7 @@ public class KinesisDataUnitSink implements Sink<DataUnit>, DataUnitCounter, Fut
     try {
 
       Futures.addCallback(
-          sender.put(protocol.message(System.currentTimeMillis(), dataUnit)),
+          sender.put(protocol.messageP25(System.currentTimeMillis(), dataUnit)),
           this
       );
 

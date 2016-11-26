@@ -20,7 +20,7 @@ package org.anhonesteffort.p25.kinesis;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.RegionUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.anhonesteffort.kinesis.producer.KinesisProducerConfig;
+import io.radiowitness.kinesis.producer.KinesisProducerConfig;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Min;
@@ -33,7 +33,6 @@ public class KinesisConfig implements KinesisProducerConfig {
   @NotEmpty  private String  secretKey;
   @NotEmpty  private String  appName;
   @NotEmpty  private String  appVersion;
-  @Min(128)  private Integer messageSizeMax;
   @Min(1)    private Integer payloadsPerRecordMax;
   @Min(1)    private Integer senderPoolSize;
   @Min(1)    private Integer senderQueueSize;
@@ -76,12 +75,6 @@ public class KinesisConfig implements KinesisProducerConfig {
   @JsonProperty
   public String getAppVersion() {
     return appVersion;
-  }
-
-  @Override
-  @JsonProperty
-  public Integer getMessageSizeMax() {
-    return messageSizeMax;
   }
 
   @Override
