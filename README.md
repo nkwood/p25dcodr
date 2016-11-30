@@ -1,6 +1,6 @@
 # p25dcodr
-
-transform [chnlzr-server](https://github.com/radiowitness/chnlzr-server) sample streams into
+ 
+Transform [chnlzr-server](https://github.com/radiowitness/chnlzr-server) sample streams into
 an Amazon Kinesis stream of P25 data units.
 
 ## Setup
