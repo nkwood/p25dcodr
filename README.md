@@ -1,7 +1,6 @@
 # p25dcodr
- 
-Transform [chnlzr-server](https://github.com/radiowitness/chnlzr-server) sample streams into
-an Amazon Kinesis stream of P25 data units.
+Transform [chnlzr-server](https://github.com/radiowitness/chnlzr-server) sample
+streams into an Amazon Kinesis stream of P25 data units.
 
 ## Setup
 ```
@@ -26,12 +25,11 @@ $ java -jar target/p25dcodr-x.x.x.jar server config.yml
 
 ## Install
 ```
-# cp p25dcodr.conf /etc/init/p25dcodr.conf
-# start p25dcodr
+# cp p25dcodr.service /etc/systemd/system/p25dcodr.service
+# systemctl enable p25dcodr.service
+# service p25dcodr starr
 ```
 
 ## License
-
 Copyright 2016 An Honest Effort LLC
-
 Licensed under the GPLv3: http://www.gnu.org/licenses/gpl-3.0.html
