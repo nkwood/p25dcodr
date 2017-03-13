@@ -61,9 +61,9 @@ public class ChnlzrConnectionFactory {
              .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, config.connectionTimeoutMs())
              .option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, config.bufferHighWaterMark())
              .option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, config.bufferLowWaterMark())
-             .handler(new ChannelInitializer<SocketChannel>() {
+             .handler(new ChannelInitializer<Channel>() {
                @Override
-               public void initChannel(SocketChannel ch) {
+               public void initChannel(Channel ch) {
                  ch.pipeline().addLast("idle state", new IdleStateHandler(0, 0, config.idleStateThresholdMs(), TimeUnit.MILLISECONDS));
                  ch.pipeline().addLast("heartbeat",  IdleStateHeartbeatWriter.INSTANCE);
                  ch.pipeline().addLast("encoder",    BaseMessageEncoder.INSTANCE);

@@ -21,12 +21,12 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
-import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
-import org.anhonesteffort.dsp.ComplexNumber;
-import org.anhonesteffort.dsp.DynamicSink;
+import org.anhonesteffort.dsp.StatefulSink;
 import org.anhonesteffort.dsp.sample.Samples;
+import org.anhonesteffort.dsp.util.ComplexNumber;
 
 import javax.annotation.Nonnull;
 import java.nio.FloatBuffer;
@@ -36,11 +36,11 @@ import static org.anhonesteffort.chnlzr.capnp.Proto.BaseMessage;
 import static org.anhonesteffort.chnlzr.capnp.Proto.Capabilities;
 import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelState;
 
-public class SamplesSourceHandler extends ChannelHandlerAdapter {
+public class SamplesSourceHandler extends ChannelInboundHandlerAdapter {
 
   private final SettableFuture<Void>                  closePromise;
   private final Capabilities.Reader                   capabilities;
-  private final AtomicReference<DynamicSink<Samples>> sink = new AtomicReference<>(null);
+  private final AtomicReference<StatefulSink<Samples>> sink = new AtomicReference<>(null);
 
   private ChannelState.Reader state;
 
@@ -80,8 +80,8 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
     return closePromise;
   }
 
-  public void setSink(DynamicSink<Samples> sink) {
-    sink.onSourceStateChange(state.getSampleRate(), state.getCenterFrequency());
+  public void setSink(StatefulSink<Samples> sink) {
+    sink.onStateChange(state.getSampleRate(), state.getCenterFrequency());
     this.sink.set(sink);
   }
 
@@ -94,14 +94,14 @@ public class SamplesSourceHandler extends ChannelHandlerAdapter {
   public void channelRead(ChannelHandlerContext context, Object msg)
       throws ProtocolErrorException, IllegalStateException
   {
-    BaseMessage.Reader   message = (BaseMessage.Reader) msg;
-    DynamicSink<Samples> sink    = this.sink.get();
+    BaseMessage.Reader    message = (BaseMessage.Reader) msg;
+    StatefulSink<Samples> sink    = this.sink.get();
 
     switch (message.getType()) {
       case CHANNEL_STATE:
         state = message.getChannelState();
         if (sink != null) {
-          sink.onSourceStateChange(state.getSampleRate(), state.getCenterFrequency());
+          sink.onStateChange(state.getSampleRate(), state.getCenterFrequency());
         }
         break;
 

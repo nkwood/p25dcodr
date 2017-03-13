@@ -18,8 +18,8 @@
 package org.anhonesteffort.p25.chnlzr;
 
 import com.google.common.util.concurrent.SettableFuture;
-import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
 import org.anhonesteffort.chnlzr.capnp.ProtoFactory;
 
@@ -27,7 +27,7 @@ import static org.anhonesteffort.chnlzr.capnp.Proto.BaseMessage;
 import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelRequest;
 import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelState;
 
-public class ChannelRequestHandler extends ChannelHandlerAdapter {
+public class ChannelRequestHandler extends ChannelInboundHandlerAdapter {
 
   private final ProtoFactory proto = new ProtoFactory();
   private final SettableFuture<ChannelRequestHandler> future;
