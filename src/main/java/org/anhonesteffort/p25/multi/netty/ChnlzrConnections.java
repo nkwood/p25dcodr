@@ -24,10 +24,10 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.AllArgsConstructor;
-import org.anhonesteffort.chnlzr.ChnlzrConfig;
 import org.anhonesteffort.chnlzr.capnp.BaseMessageDecoder;
 import org.anhonesteffort.chnlzr.capnp.BaseMessageEncoder;
 import org.anhonesteffort.chnlzr.netty.IdleStateHeartbeatWriter;
+import org.anhonesteffort.p25.multi.ChnlzrConfig;
 import org.anhonesteffort.p25.multi.ChnlzrHostId;
 
 import java.net.ConnectException;
@@ -38,9 +38,9 @@ import java.util.concurrent.TimeUnit;
 @AllArgsConstructor
 public class ChnlzrConnections {
 
-  private final ChnlzrConfig             config;
+  private final ChnlzrConfig config;
   private final Class<? extends Channel> channel;
-  private final EventLoopGroup           workerGroup;
+  private final EventLoopGroup workerGroup;
 
   public CompletionStage<ConnectionHandler> connect(ChnlzrHostId hostId) {
     CompletableFuture<ConnectionHandler> connecting = new CompletableFuture<>();
@@ -51,11 +51,11 @@ public class ChnlzrConnections {
              .channel(channel)
              .option(ChannelOption.SO_KEEPALIVE, true)
              .option(ChannelOption.TCP_NODELAY, true)
-             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, config.connectionTimeoutMs())
+             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, config.getConnectionTimeoutMs())
              .handler(new ChannelInitializer<Channel>() {
                @Override
                public void initChannel(Channel ch) {
-                 ch.pipeline().addLast("idle state", new IdleStateHandler(0, 0, config.idleStateThresholdMs(), TimeUnit.MILLISECONDS));
+                 ch.pipeline().addLast("idle state", new IdleStateHandler(0, 0, config.getIdleStateThresholdMs(), TimeUnit.MILLISECONDS));
                  ch.pipeline().addLast("heartbeat",  IdleStateHeartbeatWriter.INSTANCE);
                  ch.pipeline().addLast("encoder",    BaseMessageEncoder.INSTANCE);
                  ch.pipeline().addLast("decoder",    new BaseMessageDecoder());

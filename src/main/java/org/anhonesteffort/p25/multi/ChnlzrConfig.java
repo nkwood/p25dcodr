@@ -20,14 +20,27 @@ package org.anhonesteffort.p25.multi;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import java.util.Collection;
+import javax.validation.constraints.Min;
+import java.util.List;
 
-public class ChnlzrHosts {
+public class ChnlzrConfig {
 
-  @NotEmpty private Collection<ChnlzrHostId> hosts;
+  @Min(0)   private Integer connectionTimeoutMs;
+  @Min(0)   private Integer idleStateThresholdMs;
+  @NotEmpty private List<ChnlzrHostId> hosts;
 
   @JsonProperty
-  public Collection<ChnlzrHostId> getHosts() {
+  public Integer getConnectionTimeoutMs() {
+    return connectionTimeoutMs;
+  }
+
+  @JsonProperty
+  public Integer getIdleStateThresholdMs() {
+    return idleStateThresholdMs;
+  }
+
+  @JsonProperty
+  public List<ChnlzrHostId> getHosts() {
     return hosts;
   }
 

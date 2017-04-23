@@ -39,7 +39,7 @@ public class ChnlzrHostsController {
 
   private final List<ChnlzrHostController> controllers;
 
-  public ChnlzrHostsController(ProtoFactory proto, ChnlzrConnections connections, ChnlzrHosts hosts) {
+  public ChnlzrHostsController(ProtoFactory proto, ChnlzrConnections connections, ChnlzrConfig hosts) {
     controllers = hosts.getHosts()
         .stream()
         .map(hostId -> new ChnlzrHostController(proto, connections, hostId))
