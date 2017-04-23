@@ -17,7 +17,6 @@
 
 package org.anhonesteffort.p25.monitor;
 
-import com.codahale.metrics.Gauge;
 import org.anhonesteffort.p25.P25DcodrConfig;
 import org.anhonesteffort.p25.metric.P25DcodrMetrics;
 import org.anhonesteffort.p25.model.ChannelId;
@@ -53,12 +52,7 @@ public class ChannelMonitor {
     scheduleNewControlTask();
     scheduleNewTrafficTask();
 
-    P25DcodrMetrics.getInstance().registerChannelMonitor(new Gauge<Integer>() {
-      @Override
-      public Integer getValue() {
-        return channels.size();
-      }
-    });
+    P25DcodrMetrics.getInstance().registerChannelMonitor(channels::size);
   }
 
   private void scheduleNewControlTask() {
@@ -114,13 +108,11 @@ public class ChannelMonitor {
   }
 
   public void cancel(ChannelId channelId) {
-    Optional<MonitorRecord> record = Optional.ofNullable(channels.remove(channelId));
-    if (record.isPresent()) {
-      record.get().future.cancel(true);
-    }
+    Optional.ofNullable(channels.remove(channelId))
+            .ifPresent(record -> record.future.cancel(true));
   }
 
-  protected void removeInactive(MonitorRecord record) {
+  private void removeInactive(MonitorRecord record) {
     channels.remove(record.reference.getChannelId());
   }
 
@@ -166,7 +158,7 @@ public class ChannelMonitor {
     }
   }
 
-  protected static class MonitorRecord {
+  private static class MonitorRecord {
     protected final Identifiable    reference;
     protected final Future          future;
     protected final DataUnitCounter counter;
