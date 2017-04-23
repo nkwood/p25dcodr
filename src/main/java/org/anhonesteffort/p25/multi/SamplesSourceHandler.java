@@ -34,7 +34,7 @@ import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelState;
 
 public class SamplesSourceHandler extends ChannelInboundHandlerAdapter {
 
-  private final CompletableFuture<Void> closeFuture;
+  private final CompletableFuture<Void> closeFuture = new CompletableFuture<>();
   private final Capabilities.Reader     capabilities;
   private final StatefulSink<Samples>   sink;
 
@@ -42,7 +42,6 @@ public class SamplesSourceHandler extends ChannelInboundHandlerAdapter {
   private boolean initState = true;
 
   public SamplesSourceHandler(
-      ChannelHandlerContext context,
       Capabilities.Reader   capabilities,
       ChannelState.Reader   state,
       StatefulSink<Samples> sink
@@ -50,18 +49,6 @@ public class SamplesSourceHandler extends ChannelInboundHandlerAdapter {
     this.capabilities = capabilities;
     this.state        = state;
     this.sink         = sink;
-
-    closeFuture = new CompletableFuture<>();
-
-    context.channel().closeFuture().addListener(close -> {
-      if (close.isSuccess()) {
-        closeFuture.complete(null);
-      } else {
-        closeFuture.completeExceptionally(close.cause());
-      }
-    });
-
-    closeFuture.whenComplete((ok, err) -> context.close());
   }
 
   public Capabilities.Reader getCapabilities() {
@@ -77,9 +64,20 @@ public class SamplesSourceHandler extends ChannelInboundHandlerAdapter {
   }
 
   @Override
-  public void channelRead(ChannelHandlerContext context, Object msg)
-      throws ProtocolErrorException, IllegalStateException
-  {
+  public void handlerAdded(ChannelHandlerContext context) {
+    context.channel().closeFuture().addListener(close -> {
+      if (close.isSuccess()) {
+        closeFuture.complete(null);
+      } else {
+        closeFuture.completeExceptionally(close.cause());
+      }
+    });
+
+    closeFuture.whenComplete((ok, err) -> context.close());
+  }
+
+  @Override
+  public void channelRead(ChannelHandlerContext context, Object msg) {
     if (initState) {
       sink.onStateChange(state.getSampleRate(), state.getCenterFrequency());
       initState = false;
@@ -105,27 +103,22 @@ public class SamplesSourceHandler extends ChannelInboundHandlerAdapter {
         break;
 
       case ERROR:
-        ProtocolErrorException error = new ProtocolErrorException("chnlzr sent error while streaming", message.getError().getCode());
-        if (!closeFuture.completeExceptionally(error)) {
-          throw error;
-        }
+        closeFuture.completeExceptionally(
+            new ProtocolErrorException("chnlzr sent error while streaming", message.getError().getCode())
+        );
         break;
 
       default:
-        IllegalStateException ex = new IllegalStateException("chnlzr sent unexpected while streaming " + message.getType().name());
-        if (!closeFuture.completeExceptionally(ex)) {
-          throw ex;
-        }
-        break;
+        closeFuture.completeExceptionally(
+            new IllegalStateException("chnlzr sent unexpected while streaming " + message.getType().name())
+        );
     }
   }
 
   @Override
-  public void exceptionCaught(ChannelHandlerContext context, Throwable cause) throws Exception {
+  public void exceptionCaught(ChannelHandlerContext context, Throwable cause) {
     context.close();
-    if (closeFuture.completeExceptionally(cause)) {
-      super.exceptionCaught(context, cause);
-    }
+    closeFuture.completeExceptionally(cause);
   }
 
 }
