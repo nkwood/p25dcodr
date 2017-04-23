@@ -59,7 +59,7 @@ public class ChnlzrHostsController {
       parent.completeExceptionally(new ProtocolErrorException(
           "all chnlzr hosts have rejected our request", Error.ERROR_BANDWIDTH_UNAVAILABLE
       ));
-    } else {
+    } else if (!parent.isDone()) {
       controllers.get(controllerIdx).createSamplerFor(sink, request).whenComplete((streamer, err) -> {
         if (err != null) {
           logError(controllerIdx, err);
