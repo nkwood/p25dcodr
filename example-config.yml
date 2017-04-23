@@ -1,11 +1,7 @@
-dspPoolSize: 6
-chnlzrHostname: localhost
-chnlzrPort: 7070
-channelRequestTimeoutMs: 2000
+channelRequestTimeoutMs: 1500
 channelQualifyTimeMs: 10000
-samplesQueueSize: 10
 minControlDataUnitRate: 0.5
-minTrafficDataUnitRate: 1.0
+minTrafficDataUnitRate: 1.2
 controlChannelRetryCount: 3
 controlChannelRetryDelayMs: 10000
 
@@ -16,6 +12,13 @@ server:
     type: http
     port: 8080
 
+chnlzr:
+  connectionTimeoutMs: 1250
+  idleStateThresholdMs: 2500
+  hosts:
+    - hostname: localhost
+      port: 7070
+
 kinesis:
   region: us-west-2
   streamName: idk-stream
@@ -24,7 +27,7 @@ kinesis:
   appName: p25dcodr
   appVersion: v1.1
   payloadsPerRecordMax: 1
-  senderPoolSize: 6
+  senderPoolSize: 12
   senderQueueSize: 48
   controlDelayMaxMs: 30000
   trafficDelayMaxMs: 30000

@@ -48,7 +48,6 @@ public class P25DcodrConfig extends Configuration {
   @NotNull
   private CloudWatchConfig cloudWatch;
 
-  @Min(1)   private Integer dspPoolSize;
   @Min(1)   private Long    channelRequestTimeoutMs;
   @Min(1)   private Long    channelQualifyTimeMs;
   @NotNull  private Double  minControlDataUnitRate;
@@ -72,11 +71,6 @@ public class P25DcodrConfig extends Configuration {
   @JsonProperty
   public CloudWatchConfig getCloudWatch() {
     return cloudWatch;
-  }
-
-  @JsonProperty
-  public Integer getDspPoolSize() {
-    return dspPoolSize;
   }
 
   @JsonProperty
