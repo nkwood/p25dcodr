@@ -19,7 +19,12 @@ package org.anhonesteffort.p25.multi;
 
 import lombok.AllArgsConstructor;
 import org.anhonesteffort.chnlzr.capnp.ProtoFactory;
+import org.anhonesteffort.dsp.StatefulSink;
+import org.anhonesteffort.dsp.sample.Samples;
 import org.anhonesteffort.p25.metric.P25DcodrMetrics;
+import org.anhonesteffort.p25.multi.handler.ConnectionHandler;
+import org.anhonesteffort.p25.multi.handler.RequestHandler;
+import org.anhonesteffort.p25.multi.handler.StreamingHandler;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -27,47 +32,45 @@ import java.util.concurrent.CompletionStage;
 import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelRequest;
 
 @AllArgsConstructor
-public class ChnlzrController {
+public class ChnlzrHostController {
 
   private final ProtoFactory proto;
-  private final ChnlzrConnectionFactory connections;
-  private final ChnlzrHostId host;
+  private final ChnlzrConnections connections;
+  private final ChnlzrHostId hostId;
 
-  public CompletableFuture<SamplesSourceHandler> createSourceFor(ChannelRequest.Reader request) {
+  public CompletableFuture<StreamingHandler> createSourceFor(StatefulSink<Samples> sink, ChannelRequest.Reader request) {
     P25DcodrMetrics.getInstance().chnlzrRequest(request.getCenterFrequency());
 
-    CompletionStage<ChnlzrConnectionHandler> connecting = connections.create(host);
-    CompletableFuture<ChannelRequestHandler> requesting = new CompletableFuture<>();
-    CompletableFuture<SamplesSourceHandler>  streaming  = new CompletableFuture<>();
+    CompletionStage<ConnectionHandler>   connecting = connections.connect(hostId);
+    CompletableFuture<RequestHandler>    requesting = new CompletableFuture<>();
+    CompletableFuture<StreamingHandler>  streaming  = new CompletableFuture<>();
 
-    connecting.whenComplete((connection, err) -> {
+    connecting.whenComplete((connector, err) -> {
       if (err != null) {
         P25DcodrMetrics.getInstance().chnlzrConnectFailure();
         streaming.completeExceptionally(err);
       } else if (streaming.isDone()) {
-        connection.getContext().close();
+        connector.getContext().close();
       } else {
-        connection.getContext().pipeline().replace(
-            connection, "requester",
-            new ChannelRequestHandler(proto, requesting, connection.getCapabilities(), request)
+        connector.getContext().pipeline().replace(
+            connector, "requester",
+            new RequestHandler(proto, requesting, connector.getCapabilities(), request)
         );
       }
     });
 
-    requesting.whenComplete((requested, err) -> {
+    requesting.whenComplete((requester, err) -> {
       if (err != null) {
         P25DcodrMetrics.getInstance().chnlzrRequestFailure();
         streaming.completeExceptionally(err);
       } else {
         P25DcodrMetrics.getInstance().chnlzrRequestSuccess();
-        SamplesSourceHandler samplesSource = new SamplesSourceHandler(
-            requested.getCapabilities(), requested.getState(), null
-        );
 
-        if (!streaming.complete(samplesSource)) {
-          requested.getContext().close();
+        StreamingHandler streamer = new StreamingHandler(requester.getCapabilities(), requester.getState(), sink);
+        if (!streaming.complete(streamer)) {
+          requester.getContext().close();
         } else {
-          requested.getContext().pipeline().replace(requested, "streamer", samplesSource);
+          requester.getContext().pipeline().replace(requester, "streamer", streamer);
         }
       }
     });

@@ -28,6 +28,7 @@ import org.anhonesteffort.chnlzr.ChnlzrConfig;
 import org.anhonesteffort.chnlzr.capnp.BaseMessageDecoder;
 import org.anhonesteffort.chnlzr.capnp.BaseMessageEncoder;
 import org.anhonesteffort.chnlzr.netty.IdleStateHeartbeatWriter;
+import org.anhonesteffort.p25.multi.handler.ConnectionHandler;
 
 import java.net.ConnectException;
 import java.util.concurrent.CompletableFuture;
@@ -35,16 +36,16 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
 @AllArgsConstructor
-public class ChnlzrConnectionFactory {
+public class ChnlzrConnections {
 
   private final ChnlzrConfig             config;
   private final Class<? extends Channel> channel;
   private final EventLoopGroup           workerGroup;
 
-  public CompletionStage<ChnlzrConnectionHandler> create(ChnlzrHostId chnlzrHost) {
-    CompletableFuture<ChnlzrConnectionHandler> future     = new CompletableFuture<>();
-    ChnlzrConnectionHandler                    connection = new ChnlzrConnectionHandler(future);
-    Bootstrap                                  bootstrap  = new Bootstrap();
+  public CompletionStage<ConnectionHandler> connect(ChnlzrHostId chnlzrHost) {
+    CompletableFuture<ConnectionHandler> connecting = new CompletableFuture<>();
+    ConnectionHandler                    connector  = new ConnectionHandler(connecting);
+    Bootstrap                            bootstrap  = new Bootstrap();
 
     bootstrap.group(workerGroup)
              .channel(channel)
@@ -58,18 +59,18 @@ public class ChnlzrConnectionFactory {
                  ch.pipeline().addLast("heartbeat",  IdleStateHeartbeatWriter.INSTANCE);
                  ch.pipeline().addLast("encoder",    BaseMessageEncoder.INSTANCE);
                  ch.pipeline().addLast("decoder",    new BaseMessageDecoder());
-                 ch.pipeline().addLast("connector",  connection);
+                 ch.pipeline().addLast("connector",  connector);
                }
              });
 
     bootstrap.connect(chnlzrHost.getHostname(), chnlzrHost.getPort())
              .addListener(connect -> {
                if (!connect.isSuccess()) {
-                 future.completeExceptionally(new ConnectException("failed to connect to chnlzr"));
+                 connecting.completeExceptionally(new ConnectException("failed to connect to chnlzr"));
                }
              });
 
-    return future;
+    return connecting;
   }
 
 }

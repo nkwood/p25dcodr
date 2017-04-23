@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.anhonesteffort.p25.multi;
+package org.anhonesteffort.p25.multi.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -32,7 +32,7 @@ import static org.anhonesteffort.chnlzr.capnp.Proto.BaseMessage;
 import static org.anhonesteffort.chnlzr.capnp.Proto.Capabilities;
 import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelState;
 
-public class SamplesSourceHandler extends ChannelInboundHandlerAdapter {
+public class StreamingHandler extends ChannelInboundHandlerAdapter {
 
   private final CompletableFuture<Void> closeFuture = new CompletableFuture<>();
   private final Capabilities.Reader     capabilities;
@@ -40,7 +40,7 @@ public class SamplesSourceHandler extends ChannelInboundHandlerAdapter {
 
   private ChannelState.Reader initState;
 
-  public SamplesSourceHandler(Capabilities.Reader capabilities, ChannelState.Reader initState, StatefulSink<Samples> sink) {
+  public StreamingHandler(Capabilities.Reader capabilities, ChannelState.Reader initState, StatefulSink<Samples> sink) {
     this.capabilities = capabilities;
     this.initState    = initState;
     this.sink         = sink;

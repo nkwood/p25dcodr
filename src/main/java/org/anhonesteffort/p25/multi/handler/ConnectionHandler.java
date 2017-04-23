@@ -15,44 +15,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.anhonesteffort.p25.multi;
+package org.anhonesteffort.p25.multi.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.Getter;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
-import org.anhonesteffort.chnlzr.capnp.ProtoFactory;
 
 import java.net.ConnectException;
 import java.util.concurrent.CompletableFuture;
 
 import static org.anhonesteffort.chnlzr.capnp.Proto.BaseMessage;
-import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelRequest;
-import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelState;
 import static org.anhonesteffort.chnlzr.capnp.Proto.Capabilities;
 
-public class ChannelRequestHandler extends ChannelInboundHandlerAdapter {
+public class ConnectionHandler extends ChannelInboundHandlerAdapter {
 
-  private final ProtoFactory proto;
-  private final CompletableFuture<ChannelRequestHandler> future;
-  private final ChannelRequest.Reader request;
+  private final CompletableFuture<ConnectionHandler> future;
 
-  @Getter private final Capabilities.Reader capabilities;
   @Getter private ChannelHandlerContext context;
-  @Getter private ChannelState.Reader state;
+  @Getter private Capabilities.Reader   capabilities;
 
-  public ChannelRequestHandler(
-      ProtoFactory proto, CompletableFuture<ChannelRequestHandler> future,
-      Capabilities.Reader capabilities, ChannelRequest.Reader request
-  ) {
-    this.proto        = proto;
-    this.future       = future;
-    this.capabilities = capabilities;
-    this.request      = request;
+  public ConnectionHandler(CompletableFuture<ConnectionHandler> future) {
+    this.future = future;
   }
 
   @Override
-  public void handlerAdded(ChannelHandlerContext context) {
+  public void channelActive(ChannelHandlerContext context) {
     this.context = context;
 
     future.whenComplete((ok, err) -> context.close());
@@ -63,8 +51,6 @@ public class ChannelRequestHandler extends ChannelInboundHandlerAdapter {
         future.completeExceptionally(close.cause());
       }
     });
-
-    context.writeAndFlush(proto.channelRequest(request));
   }
 
   @Override
@@ -72,8 +58,8 @@ public class ChannelRequestHandler extends ChannelInboundHandlerAdapter {
     BaseMessage.Reader message = (BaseMessage.Reader) msg;
 
     switch (message.getType()) {
-      case CHANNEL_STATE:
-        state = message.getChannelState();
+      case CAPABILITIES:
+        capabilities = message.getCapabilities();
         future.complete(this);
         break;
 
