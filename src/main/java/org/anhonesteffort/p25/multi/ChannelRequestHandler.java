@@ -28,20 +28,30 @@ import java.util.concurrent.CompletableFuture;
 import static org.anhonesteffort.chnlzr.capnp.Proto.BaseMessage;
 import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelRequest;
 import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelState;
+import static org.anhonesteffort.chnlzr.capnp.Proto.Capabilities;
 
 public class ChannelRequestHandler extends ChannelInboundHandlerAdapter {
 
   private final ProtoFactory proto;
   private final CompletableFuture<ChannelRequestHandler> future;
+  private final Capabilities.Reader capabilities;
   private final ChannelRequest.Reader request;
 
   private ChannelHandlerContext context;
   private ChannelState.Reader state;
 
-  public ChannelRequestHandler(ProtoFactory proto, CompletableFuture<ChannelRequestHandler> future, ChannelRequest.Reader request) {
-    this.proto   = proto;
-    this.future  = future;
-    this.request = request;
+  public ChannelRequestHandler(
+      ProtoFactory proto, CompletableFuture<ChannelRequestHandler> future,
+      Capabilities.Reader capabilities, ChannelRequest.Reader request
+  ) {
+    this.proto        = proto;
+    this.future       = future;
+    this.capabilities = capabilities;
+    this.request      = request;
+  }
+
+  public Capabilities.Reader getCapabilities() {
+    return capabilities;
   }
 
   public ChannelHandlerContext getContext() {
