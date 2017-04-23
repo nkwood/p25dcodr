@@ -20,9 +20,9 @@ package org.anhonesteffort.p25;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
 import io.dropwizard.client.JerseyClientConfiguration;
+import org.anhonesteffort.p25.chnlzr.ChnlzrConfig;
 import org.anhonesteffort.p25.kinesis.KinesisConfig;
 import org.anhonesteffort.p25.metric.CloudWatchConfig;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
@@ -38,6 +38,10 @@ public class P25DcodrConfig extends Configuration {
 
   @Valid
   @NotNull
+  private ChnlzrConfig chnlzr;
+
+  @Valid
+  @NotNull
   private KinesisConfig kinesis;
 
   @Valid
@@ -45,11 +49,8 @@ public class P25DcodrConfig extends Configuration {
   private CloudWatchConfig cloudWatch;
 
   @Min(1)   private Integer dspPoolSize;
-  @NotEmpty private String  chnlzrHostname;
-  @Min(1)   private Integer chnlzrPort;
   @Min(1)   private Long    channelRequestTimeoutMs;
   @Min(1)   private Long    channelQualifyTimeMs;
-  @Min(1)   private Integer samplesQueueSize;
   @NotNull  private Double  minControlDataUnitRate;
   @NotNull  private Double  minTrafficDataUnitRate;
   @Min(0)   private Integer controlChannelRetryCount;
@@ -79,16 +80,6 @@ public class P25DcodrConfig extends Configuration {
   }
 
   @JsonProperty
-  public String getChnlzrHostname() {
-    return chnlzrHostname;
-  }
-
-  @JsonProperty
-  public Integer getChnlzrPort() {
-    return chnlzrPort;
-  }
-
-  @JsonProperty
   public Long getChannelRequestTimeoutMs() {
     return channelRequestTimeoutMs;
   }
@@ -96,11 +87,6 @@ public class P25DcodrConfig extends Configuration {
   @JsonProperty
   public Long getChannelQualifyTimeMs() {
     return channelQualifyTimeMs;
-  }
-
-  @JsonProperty
-  public Integer getSamplesQueueSize() {
-    return samplesQueueSize;
   }
 
   @JsonProperty
