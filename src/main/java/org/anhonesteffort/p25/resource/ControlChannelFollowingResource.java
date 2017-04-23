@@ -31,9 +31,7 @@ import org.anhonesteffort.p25.chnlzr.ChnlzrController;
 import org.anhonesteffort.p25.chnlzr.SamplesSourceHandler;
 import org.anhonesteffort.p25.kinesis.KinesisRecordProducerFactory;
 import org.anhonesteffort.p25.model.ChannelId;
-import org.anhonesteffort.p25.model.FollowList;
 import org.anhonesteffort.p25.model.FollowRequest;
-import org.anhonesteffort.p25.model.UnfollowRequest;
 import org.anhonesteffort.p25.monitor.ChannelMonitor;
 import org.anhonesteffort.p25.protocol.ControlChannelFollower;
 import org.glassfish.jersey.server.ManagedAsync;
@@ -43,8 +41,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -53,11 +49,9 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelRequest;
 
@@ -100,19 +94,6 @@ public class ControlChannelFollowingResource {
     );
   }
 
-  @GET
-  @Timed
-  public FollowList getList() {
-    List<FollowRequest> followed =
-        channelMonitor.getMonitored()
-                      .stream()
-                      .filter(reference -> reference instanceof FollowRequest)
-                      .map(reference -> (FollowRequest) reference)
-                      .collect(Collectors.toList());
-
-    return new FollowList(followed);
-  }
-
   @POST
   @Timed
   @ManagedAsync
@@ -136,12 +117,6 @@ public class ControlChannelFollowingResource {
 
     response.setTimeout(config.getChannelRequestTimeoutMs(), TimeUnit.MILLISECONDS);
     response.setTimeoutHandler(asyncResponse -> sourceFuture.cancel(true));
-  }
-
-  @DELETE
-  @Timed
-  public void unfollow(@NotNull @Valid UnfollowRequest request) {
-    channelMonitor.cancel(request);
   }
 
   private class SamplesSourceCallback extends AbstractSamplesSourceCallback {
