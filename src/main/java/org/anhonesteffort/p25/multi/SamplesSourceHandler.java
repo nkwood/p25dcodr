@@ -38,16 +38,11 @@ public class SamplesSourceHandler extends ChannelInboundHandlerAdapter {
   private final Capabilities.Reader     capabilities;
   private final StatefulSink<Samples>   sink;
 
-  private ChannelState.Reader state;
-  private boolean initState = true;
+  private ChannelState.Reader initState;
 
-  public SamplesSourceHandler(
-      Capabilities.Reader   capabilities,
-      ChannelState.Reader   state,
-      StatefulSink<Samples> sink
-  ) {
+  public SamplesSourceHandler(Capabilities.Reader capabilities, ChannelState.Reader initState, StatefulSink<Samples> sink) {
     this.capabilities = capabilities;
-    this.state        = state;
+    this.initState    = initState;
     this.sink         = sink;
   }
 
@@ -65,6 +60,7 @@ public class SamplesSourceHandler extends ChannelInboundHandlerAdapter {
 
   @Override
   public void handlerAdded(ChannelHandlerContext context) {
+    closeFuture.whenComplete((ok, err) -> context.close());
     context.channel().closeFuture().addListener(close -> {
       if (close.isSuccess()) {
         closeFuture.complete(null);
@@ -72,22 +68,20 @@ public class SamplesSourceHandler extends ChannelInboundHandlerAdapter {
         closeFuture.completeExceptionally(close.cause());
       }
     });
-
-    closeFuture.whenComplete((ok, err) -> context.close());
   }
 
   @Override
   public void channelRead(ChannelHandlerContext context, Object msg) {
-    if (initState) {
-      sink.onStateChange(state.getSampleRate(), state.getCenterFrequency());
-      initState = false;
+    if (initState != null) {
+      sink.onStateChange(initState.getSampleRate(), initState.getCenterFrequency());
+      initState = null;
     }
 
     BaseMessage.Reader message = (BaseMessage.Reader) msg;
 
     switch (message.getType()) {
       case CHANNEL_STATE:
-        state = message.getChannelState();
+        ChannelState.Reader state = message.getChannelState();
         sink.onStateChange(state.getSampleRate(), state.getCenterFrequency());
         break;
 

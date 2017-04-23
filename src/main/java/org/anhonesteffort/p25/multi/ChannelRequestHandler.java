@@ -38,9 +38,7 @@ public class ChannelRequestHandler extends ChannelInboundHandlerAdapter {
   private ChannelHandlerContext context;
   private ChannelState.Reader state;
 
-  public ChannelRequestHandler(
-      ProtoFactory proto, CompletableFuture<ChannelRequestHandler> future, ChannelRequest.Reader request
-  ) {
+  public ChannelRequestHandler(ProtoFactory proto, CompletableFuture<ChannelRequestHandler> future, ChannelRequest.Reader request) {
     this.proto   = proto;
     this.future  = future;
     this.request = request;
