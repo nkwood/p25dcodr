@@ -22,9 +22,10 @@ import org.anhonesteffort.chnlzr.capnp.ProtoFactory;
 import org.anhonesteffort.dsp.StatefulSink;
 import org.anhonesteffort.dsp.sample.Samples;
 import org.anhonesteffort.p25.metric.P25DcodrMetrics;
-import org.anhonesteffort.p25.multi.handler.ConnectionHandler;
-import org.anhonesteffort.p25.multi.handler.RequestHandler;
-import org.anhonesteffort.p25.multi.handler.SamplingHandler;
+import org.anhonesteffort.p25.multi.netty.ChnlzrConnections;
+import org.anhonesteffort.p25.multi.netty.ConnectionHandler;
+import org.anhonesteffort.p25.multi.netty.RequestHandler;
+import org.anhonesteffort.p25.multi.netty.SamplingHandler;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;

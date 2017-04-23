@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.anhonesteffort.p25.multi;
+package org.anhonesteffort.p25.multi.netty;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -28,7 +28,7 @@ import org.anhonesteffort.chnlzr.ChnlzrConfig;
 import org.anhonesteffort.chnlzr.capnp.BaseMessageDecoder;
 import org.anhonesteffort.chnlzr.capnp.BaseMessageEncoder;
 import org.anhonesteffort.chnlzr.netty.IdleStateHeartbeatWriter;
-import org.anhonesteffort.p25.multi.handler.ConnectionHandler;
+import org.anhonesteffort.p25.multi.ChnlzrHostId;
 
 import java.net.ConnectException;
 import java.util.concurrent.CompletableFuture;
