@@ -121,9 +121,11 @@ public class SamplesSourceHandler extends ChannelInboundHandlerAdapter {
   }
 
   @Override
-  public void exceptionCaught(ChannelHandlerContext context, Throwable cause) {
+  public void exceptionCaught(ChannelHandlerContext context, Throwable cause) throws Exception {
     context.close();
-    closeFuture.completeExceptionally(cause);
+    if (closeFuture.completeExceptionally(cause)) {
+      super.exceptionCaught(context, cause);
+    }
   }
 
 }
