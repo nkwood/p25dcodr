@@ -15,7 +15,6 @@ $ mvn package
 ## Configure
 ```
 $ cp example-config.yml config.yml
-$ cp example-chnlzr.properties chnlzr.properties
 ```
 
 ## Test

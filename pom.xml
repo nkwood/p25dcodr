@@ -25,7 +25,7 @@
 
     <groupId>org.anhonesteffort.p25</groupId>
     <artifactId>p25dcodr</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
 
     <properties>
         <dropwizard.version>1.0.6</dropwizard.version>
@@ -45,7 +45,7 @@
         <dependency>
             <groupId>org.anhonesteffort.chnlzr</groupId>
             <artifactId>chnlzr-common</artifactId>
-            <version>1.0.1</version>
+            <version>1.1</version>
         </dependency>
         <dependency>
             <groupId>org.anhonesteffort.p25</groupId>
