@@ -18,6 +18,7 @@
 package org.anhonesteffort.p25.multi;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.anhonesteffort.chnlzr.capnp.ProtoFactory;
 import org.anhonesteffort.dsp.StatefulSink;
 import org.anhonesteffort.dsp.sample.Samples;
@@ -37,20 +38,20 @@ public class ChnlzrHostController {
 
   private final ProtoFactory proto;
   private final ChnlzrConnections connections;
-  private final ChnlzrHostId hostId;
+  @Getter private final ChnlzrHostId hostId;
 
-  public CompletableFuture<SamplingHandler> createStreamFor(StatefulSink<Samples> sink, ChannelRequest.Reader request) {
+  public CompletableFuture<SamplingHandler> createSamplerFor(StatefulSink<Samples> sink, ChannelRequest.Reader request) {
     P25DcodrMetrics.getInstance().chnlzrRequest(request.getCenterFrequency());
 
     CompletionStage<ConnectionHandler>   connecting = connections.connect(hostId);
     CompletableFuture<RequestHandler>    requesting = new CompletableFuture<>();
-    CompletableFuture<SamplingHandler>   streaming  = new CompletableFuture<>();
+    CompletableFuture<SamplingHandler>   sampling   = new CompletableFuture<>();
 
     connecting.whenComplete((connector, err) -> {
       if (err != null) {
         P25DcodrMetrics.getInstance().chnlzrConnectFailure();
-        streaming.completeExceptionally(err);
-      } else if (streaming.isDone()) {
+        sampling.completeExceptionally(err);
+      } else if (sampling.isDone()) {
         connector.getContext().close();
       } else {
         connector.getContext().pipeline().replace(
@@ -63,12 +64,12 @@ public class ChnlzrHostController {
     requesting.whenComplete((requester, err) -> {
       if (err != null) {
         P25DcodrMetrics.getInstance().chnlzrRequestFailure();
-        streaming.completeExceptionally(err);
+        sampling.completeExceptionally(err);
       } else {
         P25DcodrMetrics.getInstance().chnlzrRequestSuccess();
 
         SamplingHandler sampler = new SamplingHandler(requester.getCapabilities(), requester.getState(), sink);
-        if (!streaming.complete(sampler)) {
+        if (!sampling.complete(sampler)) {
           requester.getContext().close();
         } else {
           requester.getContext().pipeline().replace(requester, "sampler", sampler);
@@ -76,7 +77,7 @@ public class ChnlzrHostController {
       }
     });
 
-    return streaming;
+    return sampling;
   }
 
 }

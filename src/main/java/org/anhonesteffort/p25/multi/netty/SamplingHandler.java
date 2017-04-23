@@ -98,13 +98,13 @@ public class SamplingHandler extends ChannelInboundHandlerAdapter {
 
       case ERROR:
         closeFuture.completeExceptionally(
-            new ProtocolErrorException("chnlzr sent error while streaming", message.getError().getCode())
+            new ProtocolErrorException("chnlzr sent error", message.getError().getCode())
         );
         break;
 
       default:
         closeFuture.completeExceptionally(
-            new IllegalStateException("chnlzr sent unexpected while streaming " + message.getType().name())
+            new IllegalStateException("chnlzr sent unexpected " + message.getType().name())
         );
     }
   }

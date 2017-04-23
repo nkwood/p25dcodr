@@ -54,4 +54,10 @@ public class ChnlzrHostId {
     result = 31 * result + port.hashCode();
     return result;
   }
+
+  @Override
+  public String toString() {
+    return String.format("chnlzr://%s:%d", hostname, port);
+  }
+
 }

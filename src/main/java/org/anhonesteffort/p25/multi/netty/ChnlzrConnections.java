@@ -42,7 +42,7 @@ public class ChnlzrConnections {
   private final Class<? extends Channel> channel;
   private final EventLoopGroup           workerGroup;
 
-  public CompletionStage<ConnectionHandler> connect(ChnlzrHostId chnlzrHost) {
+  public CompletionStage<ConnectionHandler> connect(ChnlzrHostId hostId) {
     CompletableFuture<ConnectionHandler> connecting = new CompletableFuture<>();
     ConnectionHandler                    connector  = new ConnectionHandler(connecting);
     Bootstrap                            bootstrap  = new Bootstrap();
@@ -63,7 +63,7 @@ public class ChnlzrConnections {
                }
              });
 
-    bootstrap.connect(chnlzrHost.getHostname(), chnlzrHost.getPort())
+    bootstrap.connect(hostId.getHostname(), hostId.getPort())
              .addListener(connect -> {
                if (!connect.isSuccess()) {
                  connecting.completeExceptionally(new ConnectException("failed to connect to chnlzr"));
