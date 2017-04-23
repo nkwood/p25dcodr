@@ -32,7 +32,7 @@ import static org.anhonesteffort.chnlzr.capnp.Proto.BaseMessage;
 import static org.anhonesteffort.chnlzr.capnp.Proto.Capabilities;
 import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelState;
 
-public class StreamingHandler extends ChannelInboundHandlerAdapter {
+public class SamplingHandler extends ChannelInboundHandlerAdapter {
 
   private final CompletableFuture<Void> closeFuture = new CompletableFuture<>();
   private final Capabilities.Reader     capabilities;
@@ -40,7 +40,7 @@ public class StreamingHandler extends ChannelInboundHandlerAdapter {
 
   private ChannelState.Reader initState;
 
-  public StreamingHandler(Capabilities.Reader capabilities, ChannelState.Reader initState, StatefulSink<Samples> sink) {
+  public SamplingHandler(Capabilities.Reader capabilities, ChannelState.Reader initState, StatefulSink<Samples> sink) {
     this.capabilities = capabilities;
     this.initState    = initState;
     this.sink         = sink;

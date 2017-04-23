@@ -20,21 +20,15 @@ package org.anhonesteffort.p25.multi;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.Min;
+import java.util.Collection;
 
-public class ChnlzrHostConfig {
+public class ChnlzrHosts {
 
-  @NotEmpty private String  hostname;
-  @Min(1)   private Integer port;
-
-  @JsonProperty
-  public String getHostname() {
-    return hostname;
-  }
+  @NotEmpty private Collection<ChnlzrHostId> hosts;
 
   @JsonProperty
-  public Integer getPort() {
-    return port;
+  public Collection<ChnlzrHostId> getHosts() {
+    return hosts;
   }
 
 }

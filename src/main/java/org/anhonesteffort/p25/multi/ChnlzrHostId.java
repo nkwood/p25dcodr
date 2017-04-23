@@ -17,20 +17,22 @@
 
 package org.anhonesteffort.p25.multi;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.Min;
+
 public class ChnlzrHostId {
 
-  private final String  hostname;
-  private final Integer port;
+  @NotEmpty private String  hostname;
+  @Min(1)   private Integer port;
 
-  public ChnlzrHostId(String hostname, Integer port) {
-    this.hostname = hostname;
-    this.port     = port;
-  }
-
+  @JsonProperty
   public String getHostname() {
     return hostname;
   }
 
+  @JsonProperty
   public Integer getPort() {
     return port;
   }
@@ -52,5 +54,4 @@ public class ChnlzrHostId {
     result = 31 * result + port.hashCode();
     return result;
   }
-
 }

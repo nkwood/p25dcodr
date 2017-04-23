@@ -24,7 +24,7 @@ import org.anhonesteffort.dsp.sample.Samples;
 import org.anhonesteffort.p25.metric.P25DcodrMetrics;
 import org.anhonesteffort.p25.multi.handler.ConnectionHandler;
 import org.anhonesteffort.p25.multi.handler.RequestHandler;
-import org.anhonesteffort.p25.multi.handler.StreamingHandler;
+import org.anhonesteffort.p25.multi.handler.SamplingHandler;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -38,12 +38,12 @@ public class ChnlzrHostController {
   private final ChnlzrConnections connections;
   private final ChnlzrHostId hostId;
 
-  public CompletableFuture<StreamingHandler> createSourceFor(StatefulSink<Samples> sink, ChannelRequest.Reader request) {
+  public CompletableFuture<SamplingHandler> createStreamFor(StatefulSink<Samples> sink, ChannelRequest.Reader request) {
     P25DcodrMetrics.getInstance().chnlzrRequest(request.getCenterFrequency());
 
     CompletionStage<ConnectionHandler>   connecting = connections.connect(hostId);
     CompletableFuture<RequestHandler>    requesting = new CompletableFuture<>();
-    CompletableFuture<StreamingHandler>  streaming  = new CompletableFuture<>();
+    CompletableFuture<SamplingHandler>   streaming  = new CompletableFuture<>();
 
     connecting.whenComplete((connector, err) -> {
       if (err != null) {
@@ -66,11 +66,11 @@ public class ChnlzrHostController {
       } else {
         P25DcodrMetrics.getInstance().chnlzrRequestSuccess();
 
-        StreamingHandler streamer = new StreamingHandler(requester.getCapabilities(), requester.getState(), sink);
-        if (!streaming.complete(streamer)) {
+        SamplingHandler sampler = new SamplingHandler(requester.getCapabilities(), requester.getState(), sink);
+        if (!streaming.complete(sampler)) {
           requester.getContext().close();
         } else {
-          requester.getContext().pipeline().replace(requester, "streamer", streamer);
+          requester.getContext().pipeline().replace(requester, "sampler", sampler);
         }
       }
     });
