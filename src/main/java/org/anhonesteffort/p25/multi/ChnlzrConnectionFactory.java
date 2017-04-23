@@ -23,6 +23,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.timeout.IdleStateHandler;
+import lombok.AllArgsConstructor;
 import org.anhonesteffort.chnlzr.ChnlzrConfig;
 import org.anhonesteffort.chnlzr.capnp.BaseMessageDecoder;
 import org.anhonesteffort.chnlzr.capnp.BaseMessageEncoder;
@@ -33,20 +34,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
+@AllArgsConstructor
 public class ChnlzrConnectionFactory {
 
   private final ChnlzrConfig             config;
   private final Class<? extends Channel> channel;
   private final EventLoopGroup           workerGroup;
-
-  public ChnlzrConnectionFactory(ChnlzrConfig             config,
-                                 Class<? extends Channel> channel,
-                                 EventLoopGroup           workerGroup)
-  {
-    this.config      = config;
-    this.channel     = channel;
-    this.workerGroup = workerGroup;
-  }
 
   public CompletionStage<ChnlzrConnectionHandler> create(ChnlzrHostId chnlzrHost) {
     CompletableFuture<ChnlzrConnectionHandler> future     = new CompletableFuture<>();

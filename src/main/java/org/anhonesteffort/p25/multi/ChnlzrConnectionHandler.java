@@ -19,6 +19,7 @@ package org.anhonesteffort.p25.multi;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import lombok.Getter;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
 
 import java.net.ConnectException;
@@ -31,19 +32,11 @@ public class ChnlzrConnectionHandler extends ChannelInboundHandlerAdapter {
 
   private final CompletableFuture<ChnlzrConnectionHandler> future;
 
-  private ChannelHandlerContext context;
-  private Capabilities.Reader   capabilities;
+  @Getter private ChannelHandlerContext context;
+  @Getter private Capabilities.Reader   capabilities;
 
   public ChnlzrConnectionHandler(CompletableFuture<ChnlzrConnectionHandler> future) {
     this.future = future;
-  }
-
-  public ChannelHandlerContext getContext() {
-    return context;
-  }
-
-  public Capabilities.Reader getCapabilities() {
-    return capabilities;
   }
 
   @Override

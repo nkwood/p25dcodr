@@ -17,6 +17,7 @@
 
 package org.anhonesteffort.p25.multi;
 
+import lombok.AllArgsConstructor;
 import org.anhonesteffort.chnlzr.capnp.ProtoFactory;
 import org.anhonesteffort.p25.metric.P25DcodrMetrics;
 
@@ -25,17 +26,12 @@ import java.util.concurrent.CompletionStage;
 
 import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelRequest;
 
+@AllArgsConstructor
 public class ChnlzrController {
 
   private final ProtoFactory proto;
   private final ChnlzrConnectionFactory connections;
   private final ChnlzrHostId host;
-
-  public ChnlzrController(ProtoFactory proto, ChnlzrConnectionFactory connections, ChnlzrHostId host) {
-    this.proto       = proto;
-    this.connections = connections;
-    this.host        = host;
-  }
 
   public CompletableFuture<SamplesSourceHandler> createSourceFor(ChannelRequest.Reader request) {
     P25DcodrMetrics.getInstance().chnlzrRequest(request.getCenterFrequency());

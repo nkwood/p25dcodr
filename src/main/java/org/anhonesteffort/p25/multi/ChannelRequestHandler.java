@@ -19,6 +19,7 @@ package org.anhonesteffort.p25.multi;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import lombok.Getter;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
 import org.anhonesteffort.chnlzr.capnp.ProtoFactory;
 
@@ -34,11 +35,11 @@ public class ChannelRequestHandler extends ChannelInboundHandlerAdapter {
 
   private final ProtoFactory proto;
   private final CompletableFuture<ChannelRequestHandler> future;
-  private final Capabilities.Reader capabilities;
   private final ChannelRequest.Reader request;
 
-  private ChannelHandlerContext context;
-  private ChannelState.Reader state;
+  @Getter private final Capabilities.Reader capabilities;
+  @Getter private ChannelHandlerContext context;
+  @Getter private ChannelState.Reader state;
 
   public ChannelRequestHandler(
       ProtoFactory proto, CompletableFuture<ChannelRequestHandler> future,
@@ -48,18 +49,6 @@ public class ChannelRequestHandler extends ChannelInboundHandlerAdapter {
     this.future       = future;
     this.capabilities = capabilities;
     this.request      = request;
-  }
-
-  public Capabilities.Reader getCapabilities() {
-    return capabilities;
-  }
-
-  public ChannelHandlerContext getContext() {
-    return context;
-  }
-
-  public ChannelState.Reader getState() {
-    return state;
   }
 
   @Override
