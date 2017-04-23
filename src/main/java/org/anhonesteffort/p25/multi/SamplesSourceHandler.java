@@ -17,10 +17,6 @@
 
 package org.anhonesteffort.p25.multi;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
@@ -28,8 +24,9 @@ import org.anhonesteffort.dsp.StatefulSink;
 import org.anhonesteffort.dsp.sample.Samples;
 import org.anhonesteffort.dsp.util.ComplexNumber;
 
-import javax.annotation.Nonnull;
 import java.nio.FloatBuffer;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import static org.anhonesteffort.chnlzr.capnp.Proto.BaseMessage;
 import static org.anhonesteffort.chnlzr.capnp.Proto.Capabilities;
@@ -37,9 +34,9 @@ import static org.anhonesteffort.chnlzr.capnp.Proto.ChannelState;
 
 public class SamplesSourceHandler extends ChannelInboundHandlerAdapter {
 
-  private final SettableFuture<Void>  closePromise = SettableFuture.create();
-  private final Capabilities.Reader   capabilities;
-  private final StatefulSink<Samples> sink;
+  private final CompletableFuture<Void> closeFuture;
+  private final Capabilities.Reader     capabilities;
+  private final StatefulSink<Samples>   sink;
 
   private ChannelState.Reader state;
   private boolean initState = true;
@@ -54,36 +51,29 @@ public class SamplesSourceHandler extends ChannelInboundHandlerAdapter {
     this.state        = state;
     this.sink         = sink;
 
+    closeFuture = new CompletableFuture<>();
+
     context.channel().closeFuture().addListener(close -> {
       if (close.isSuccess()) {
-        closePromise.set(null);
+        closeFuture.complete(null);
       } else {
-        closePromise.setException(close.cause());
+        closeFuture.completeExceptionally(close.cause());
       }
     });
 
-    Futures.addCallback(closePromise, new FutureCallback<Void>() {
-      @Override
-      public void onSuccess(Void aVoid) {
-        context.close();
-      }
-      @Override
-      public void onFailure(@Nonnull Throwable error) {
-        context.close();
-      }
-    });
+    closeFuture.whenComplete((ok, err) -> context.close());
   }
 
   public Capabilities.Reader getCapabilities() {
     return capabilities;
   }
 
-  public ListenableFuture<Void> getCloseFuture() {
-    return closePromise;
+  public CompletionStage<Void> getCloseFuture() {
+    return closeFuture;
   }
 
   public void close() {
-    closePromise.set(null);
+    closeFuture.complete(null);
   }
 
   @Override
@@ -116,14 +106,14 @@ public class SamplesSourceHandler extends ChannelInboundHandlerAdapter {
 
       case ERROR:
         ProtocolErrorException error = new ProtocolErrorException("chnlzr sent error while streaming", message.getError().getCode());
-        if (!closePromise.setException(error)) {
+        if (!closeFuture.completeExceptionally(error)) {
           throw error;
         }
         break;
 
       default:
         IllegalStateException ex = new IllegalStateException("chnlzr sent unexpected while streaming " + message.getType().name());
-        if (!closePromise.setException(ex)) {
+        if (!closeFuture.completeExceptionally(ex)) {
           throw ex;
         }
         break;
@@ -133,7 +123,7 @@ public class SamplesSourceHandler extends ChannelInboundHandlerAdapter {
   @Override
   public void exceptionCaught(ChannelHandlerContext context, Throwable cause) {
     context.close();
-    closePromise.setException(cause);
+    closeFuture.completeExceptionally(cause);
   }
 
 }
