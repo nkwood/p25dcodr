@@ -24,7 +24,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.anhonesteffort.chnlzr.ChnlzrConfig;
 import org.anhonesteffort.chnlzr.capnp.BaseMessageDecoder;
@@ -59,8 +58,6 @@ public class ChnlzrConnectionFactory {
              .option(ChannelOption.SO_KEEPALIVE, true)
              .option(ChannelOption.TCP_NODELAY, true)
              .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, config.connectionTimeoutMs())
-             .option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, config.bufferHighWaterMark())
-             .option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, config.bufferLowWaterMark())
              .handler(new ChannelInitializer<Channel>() {
                @Override
                public void initChannel(Channel ch) {

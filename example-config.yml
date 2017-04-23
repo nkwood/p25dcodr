@@ -22,7 +22,7 @@ kinesis:
   accessKeyId: aaabbb111222
   secretKey: cccddd333444
   appName: p25dcodr
-  appVersion: v0.5.0
+  appVersion: v1.0
   payloadsPerRecordMax: 1
   senderPoolSize: 6
   senderQueueSize: 48

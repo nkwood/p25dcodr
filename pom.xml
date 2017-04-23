@@ -28,35 +28,8 @@
     <version>1.0</version>
 
     <properties>
-        <dropwizard.version>0.9.1</dropwizard.version>
+        <dropwizard.version>1.0.6</dropwizard.version>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>chnlzr-common-mvn-repo</id>
-            <url>https://raw.github.com/radiowitness/chnlzr-common/mvn-repo/</url>
-            <snapshots>
-                <updatePolicy>always</updatePolicy>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>p25-common-mvn-repo</id>
-            <url>https://raw.github.com/radiowitness/p25-common/mvn-repo/</url>
-            <snapshots>
-                <updatePolicy>always</updatePolicy>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>kinesis-common-mvn-repo</id>
-            <url>https://raw.github.com/radiowitness/kinesis-common/mvn-repo/</url>
-            <snapshots>
-                <updatePolicy>always</updatePolicy>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
     <dependencies>
         <dependency>
@@ -72,7 +45,7 @@
         <dependency>
             <groupId>org.anhonesteffort.chnlzr</groupId>
             <artifactId>chnlzr-common</artifactId>
-            <version>1.0</version>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.anhonesteffort.p25</groupId>

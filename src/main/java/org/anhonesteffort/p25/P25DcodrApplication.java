@@ -63,11 +63,14 @@ public class P25DcodrApplication extends Application<P25DcodrConfig> {
   }
 
   private Client buildClient(P25DcodrConfig config, Environment environment) {
-    config.getJerseyConfig().setTimeout(Duration.milliseconds(
-        config.getChannelRequestTimeoutMs() + config.getChannelQualifyTimeMs() + 2500l)
-    );
-    return new JerseyClientBuilder(environment).using(config.getJerseyConfig())
-                                               .build("jersey-client");
+    config.getJerseyConfig()
+          .setTimeout(Duration.milliseconds(
+              config.getChannelRequestTimeoutMs() + config.getChannelQualifyTimeMs() + 2500l
+          ));
+
+    return new JerseyClientBuilder(environment)
+        .using(config.getJerseyConfig())
+        .build("jersey-client");
   }
 
   private String getServerUri(P25DcodrConfig config) {

@@ -64,8 +64,6 @@ public class ChnlzrConnectionFactoryTest {
 
     Mockito.when(CONFIG.connectionTimeoutMs()).thenReturn(250);
     Mockito.when(CONFIG.idleStateThresholdMs()).thenReturn(1000l);
-    Mockito.when(CONFIG.bufferHighWaterMark()).thenReturn(32768);
-    Mockito.when(CONFIG.bufferLowWaterMark()).thenReturn(8192);
 
     final ListenableFuture<ChnlzrConnectionHandler> FUTURE   = FACTORY.create(new HostId("nope", 1337));
     final IdleCallback                              CALLBACK = new IdleCallback();
