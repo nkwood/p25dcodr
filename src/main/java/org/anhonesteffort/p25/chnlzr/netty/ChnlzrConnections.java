@@ -15,67 +15,62 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.anhonesteffort.p25.chnlzr;
+package org.anhonesteffort.p25.chnlzr.netty;
 
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.timeout.IdleStateHandler;
-import org.anhonesteffort.chnlzr.ChnlzrConfig;
+import lombok.AllArgsConstructor;
 import org.anhonesteffort.chnlzr.capnp.BaseMessageDecoder;
 import org.anhonesteffort.chnlzr.capnp.BaseMessageEncoder;
 import org.anhonesteffort.chnlzr.netty.IdleStateHeartbeatWriter;
+import org.anhonesteffort.p25.chnlzr.ChnlzrConfig;
+import org.anhonesteffort.p25.chnlzr.ChnlzrHostId;
 
 import java.net.ConnectException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
-public class ChnlzrConnectionFactory {
+@AllArgsConstructor
+public class ChnlzrConnections {
 
-  private final ChnlzrConfig             config;
+  private final ChnlzrConfig config;
   private final Class<? extends Channel> channel;
-  private final EventLoopGroup           workerGroup;
+  private final EventLoopGroup workerGroup;
 
-  public ChnlzrConnectionFactory(ChnlzrConfig             config,
-                                 Class<? extends Channel> channel,
-                                 EventLoopGroup           workerGroup)
-  {
-    this.config      = config;
-    this.channel     = channel;
-    this.workerGroup = workerGroup;
-  }
-
-  public ListenableFuture<ChnlzrConnectionHandler> create(HostId chnlzrHost) {
-    SettableFuture<ChnlzrConnectionHandler> future     = SettableFuture.create();
-    ChnlzrConnectionHandler                 connection = new ChnlzrConnectionHandler(future);
-    Bootstrap                               bootstrap  = new Bootstrap();
+  public CompletionStage<ConnectionHandler> connect(ChnlzrHostId hostId) {
+    CompletableFuture<ConnectionHandler> connecting = new CompletableFuture<>();
+    ConnectionHandler                    connector  = new ConnectionHandler(connecting);
+    Bootstrap                            bootstrap  = new Bootstrap();
 
     bootstrap.group(workerGroup)
              .channel(channel)
              .option(ChannelOption.SO_KEEPALIVE, true)
              .option(ChannelOption.TCP_NODELAY, true)
-             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, config.connectionTimeoutMs())
+             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, config.getConnectionTimeoutMs())
              .handler(new ChannelInitializer<Channel>() {
                @Override
                public void initChannel(Channel ch) {
-                 ch.pipeline().addLast("idle state", new IdleStateHandler(0, 0, config.idleStateThresholdMs(), TimeUnit.MILLISECONDS));
+                 ch.pipeline().addLast("idle state", new IdleStateHandler(0, 0, config.getIdleStateThresholdMs(), TimeUnit.MILLISECONDS));
                  ch.pipeline().addLast("heartbeat",  IdleStateHeartbeatWriter.INSTANCE);
                  ch.pipeline().addLast("encoder",    BaseMessageEncoder.INSTANCE);
                  ch.pipeline().addLast("decoder",    new BaseMessageDecoder());
-                 ch.pipeline().addLast("connector",  connection);
+                 ch.pipeline().addLast("connector",  connector);
                }
              });
 
-    bootstrap.connect(chnlzrHost.getHostname(), chnlzrHost.getPort())
+    bootstrap.connect(hostId.getHostname(), hostId.getPort())
              .addListener(connect -> {
-               if (!connect.isSuccess())
-                 future.setException(new ConnectException("failed to connect to chnlzr"));
+               if (!connect.isSuccess()) {
+                 connecting.completeExceptionally(new ConnectException("failed to connect to chnlzr"));
+               }
              });
 
-    return future;
+    return connecting;
   }
 
 }

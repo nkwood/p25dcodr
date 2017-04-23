@@ -15,14 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.anhonesteffort.p25.multi;
+package org.anhonesteffort.p25.chnlzr;
 
 import org.anhonesteffort.chnlzr.ProtocolErrorException;
 import org.anhonesteffort.chnlzr.capnp.ProtoFactory;
 import org.anhonesteffort.dsp.StatefulSink;
 import org.anhonesteffort.dsp.sample.Samples;
-import org.anhonesteffort.p25.multi.netty.ChnlzrConnections;
-import org.anhonesteffort.p25.multi.netty.SamplingHandler;
+import org.anhonesteffort.p25.chnlzr.netty.ChnlzrConnections;
+import org.anhonesteffort.p25.chnlzr.netty.SamplingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

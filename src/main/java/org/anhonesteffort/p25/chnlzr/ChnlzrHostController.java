@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.anhonesteffort.p25.multi;
+package org.anhonesteffort.p25.chnlzr;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,10 +23,10 @@ import org.anhonesteffort.chnlzr.capnp.ProtoFactory;
 import org.anhonesteffort.dsp.StatefulSink;
 import org.anhonesteffort.dsp.sample.Samples;
 import org.anhonesteffort.p25.metric.P25DcodrMetrics;
-import org.anhonesteffort.p25.multi.netty.ChnlzrConnections;
-import org.anhonesteffort.p25.multi.netty.ConnectionHandler;
-import org.anhonesteffort.p25.multi.netty.RequestHandler;
-import org.anhonesteffort.p25.multi.netty.SamplingHandler;
+import org.anhonesteffort.p25.chnlzr.netty.ChnlzrConnections;
+import org.anhonesteffort.p25.chnlzr.netty.ConnectionHandler;
+import org.anhonesteffort.p25.chnlzr.netty.RequestHandler;
+import org.anhonesteffort.p25.chnlzr.netty.SamplingHandler;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;

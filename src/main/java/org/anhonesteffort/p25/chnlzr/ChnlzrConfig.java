@@ -17,22 +17,31 @@
 
 package org.anhonesteffort.p25.chnlzr;
 
-public class HostId {
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.validator.constraints.NotEmpty;
 
-  private final String  hostname;
-  private final Integer port;
+import javax.validation.constraints.Min;
+import java.util.List;
 
-  public HostId(String hostname, Integer port) {
-    this.hostname = hostname;
-    this.port     = port;
+public class ChnlzrConfig {
+
+  @Min(0)   private Integer connectionTimeoutMs;
+  @Min(0)   private Integer idleStateThresholdMs;
+  @NotEmpty private List<ChnlzrHostId> hosts;
+
+  @JsonProperty
+  public Integer getConnectionTimeoutMs() {
+    return connectionTimeoutMs;
   }
 
-  public String getHostname() {
-    return hostname;
+  @JsonProperty
+  public Integer getIdleStateThresholdMs() {
+    return idleStateThresholdMs;
   }
 
-  public Integer getPort() {
-    return port;
+  @JsonProperty
+  public List<ChnlzrHostId> getHosts() {
+    return hosts;
   }
 
 }
