@@ -19,8 +19,8 @@ package org.anhonesteffort.p25.monitor;
 
 public interface DataUnitCounter {
 
-  public int getDataUnitCount();
+  int getDataUnitCount();
 
-  public void resetDataUnitCount();
+  void resetDataUnitCount();
 
 }

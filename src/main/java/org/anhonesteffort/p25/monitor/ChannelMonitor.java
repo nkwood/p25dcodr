@@ -112,7 +112,7 @@ public class ChannelMonitor {
             .ifPresent(record -> record.future.cancel(true));
   }
 
-  private void removeInactive(MonitorRecord record) {
+  protected void removeInactive(MonitorRecord record) {
     channels.remove(record.reference.getChannelId());
   }
 
@@ -158,7 +158,7 @@ public class ChannelMonitor {
     }
   }
 
-  private static class MonitorRecord {
+  protected static class MonitorRecord {
     protected final Identifiable    reference;
     protected final Future          future;
     protected final DataUnitCounter counter;
